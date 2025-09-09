@@ -1,5 +1,6 @@
 'use client'
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import RoomCard from "../../components/RoomCard";
 import { roomService, type Room } from "../../api/room.service";
 import { Building2, Cog, Plus } from "lucide-react";
@@ -9,12 +10,53 @@ import UpdateRoomModal from '../../components/UpdateRoom';
 import ProtectedRoute from "@/context/ProtectedRoute";
 
 const RoomsPage: React.FC = () => {
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [editRoomId, setEditRoomId] = useState<number | null>(null);
-  const { user } = useAuth();
+
+  // 1. Fetch rooms using useQuery
+  const { data: rooms, isLoading, isError, error } = useQuery({
+    queryKey: ['rooms'],
+    queryFn: async () => {
+      const response = await roomService.getAllRooms();
+      return response.rooms;
+    }
+  });
+
+  // 2. Handle room deletion with useMutation
+  const deleteMutation = useMutation({
+    mutationFn: (roomId: number) => roomService.deleteRoom(roomId),
+    // 3. Invalidate the query on success to trigger a refetch
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['rooms'] });
+    },
+    onError: (err) => {
+      console.error("Failed to delete room:", err);
+      // Optionally, you can set an error state here to display in the UI
+    }
+  });
+
+  const handleRoomUpdate = (roomid: number) => {
+    setEditRoomId(roomid);
+    setIsUpdateOpen(true);
+  };
+
+  const handleUpdateSuccess = () => {
+    // 4. Invalidate the query on successful update as well
+    queryClient.invalidateQueries({ queryKey: ['rooms'] });
+    handleCloseUpdate();
+  };
+
+  const handleCloseUpdate = () => {
+    setIsUpdateOpen(false);
+    setEditRoomId(null);
+  };
+
+  const handleRoomDelete = (deletedRoomId: number) => {
+    deleteMutation.mutate(deletedRoomId);
+  };
 
   const features = [
     {
@@ -29,57 +71,19 @@ const RoomsPage: React.FC = () => {
     }] : [])
   ];
 
-  useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const response = await roomService.getAllRooms();
-        setRooms(response.rooms);
-      } catch (err: any) {
-        setError(err.message || 'failed to load rooms');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRooms();
-  }, []);
-
-  const handleRoomUpdate = (roomid: number) => {
-    setEditRoomId(roomid);
-    setIsUpdateOpen(true);
-  };
-
-  const handleUpdateSuccess = (updatedRoom: Room) => {
-    setRooms(prevRooms =>
-      prevRooms.map(room =>
-        room.roomid === updatedRoom.roomid ? updatedRoom : room
-      )
-    );
-  };
-
-  const handleCloseUpdate = () => {
-    setIsUpdateOpen(false);
-    setEditRoomId(null);
-  };
-
-  const handleRoomDelete = (deletedRoomId: number) => {
-    setRooms(prevRooms =>
-      prevRooms.filter(room => room.roomid !== deletedRoomId)
-    );
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex justify-center items-center">
-        <div className="text-red-500 dark:text-red-500 animate-spin rounded-full"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
       </div>
     );
   }
 
- if (error) {
+ if (isError) {
   return (
     <div className="min-h-screen flex justify-center items-center">
       <div className="flex flex-col items-center space-y-4">
-        <p className="text-red-500">{error}</p>
+        <p className="text-red-500">{error.message}</p>
         {user?.role === 'admin' && (
           <Link
             href="/registerroom"
@@ -157,7 +161,7 @@ const RoomsPage: React.FC = () => {
             </div>
             <div className="lg:col-span-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {rooms.map((room) => (
+                {rooms?.map((room) => (
                   <RoomCard 
                     key={room.roomid} 
                     room={room} 

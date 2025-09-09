@@ -1,5 +1,6 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import EmployeeCard from '../../components/EmployeeCard';
 import { userService, type User } from '../../api/user.service';
 import { Cog, Plus, User2 } from 'lucide-react';
@@ -8,12 +9,49 @@ import Link from 'next/link';
 import ProtectedRoute from '@/context/ProtectedRoute';
 
 const EmployeesPage: React.FC = () => {
-  const [employees, setEmployees] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [isUpdateOpen,setIsUpdateOpen]=useState(false);
-  const [editUserId,setEditUserId]=useState<number|null>(null);
+  const queryClient = useQueryClient();
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+  const [editUserId, setEditUserId] = useState<number | null>(null);
 
+  // Fetch employees using useQuery
+  const { data: employees, isLoading, isError, error } = useQuery({
+    queryKey: ['employees'],
+    queryFn: userService.getUsers,
+  });
+
+  // Handle user deletion with useMutation
+  const deleteMutation = useMutation({
+    mutationFn: (userId: number) => userService.deleteUser(userId),
+    onSuccess: () => {
+      // THE FIX: Invalidate the query to refetch the list automatically
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+    },
+    onError: (err) => {
+      console.error("Failed to delete user:", err);
+      // You can set an error state here to show in the UI if needed
+    },
+  });
+
+  const handleUserUpdate = (userid: number) => {
+    setEditUserId(userid);
+    setIsUpdateOpen(true);
+  };
+
+  const handleUpdateSuccess = () => {
+    // THE FIX: Also invalidate the query after a successful update
+    queryClient.invalidateQueries({ queryKey: ['employees'] });
+    handleCloseUpdate();
+  };
+
+  const handleCloseUpdate = () => {
+    setIsUpdateOpen(false);
+    setEditUserId(null);
+  };
+
+  const handleUserDelete = (deletedUserId: number) => {
+    deleteMutation.mutate(deletedUserId);
+  };
+  
   const features = [
     {
       icon: <User2 className='w-6 h-6' />,
@@ -27,56 +65,19 @@ const EmployeesPage: React.FC = () => {
     },
   ];
 
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const response = await userService.getUsers();
-        setEmployees(response);
-      } catch (err: any) {
-        setError(err.message || 'failed to load employees');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchEmployees();
-  }, []);
 
-  const handleUserUpdate=(userid:number)=>{
-    setEditUserId(userid);
-    setIsUpdateOpen(true);
-  }
-
-  const handleUpdateSuccess=(updatedUser:User)=>{
-    setEmployees(prevEmployees=>
-      prevEmployees.map(employee=>
-        employee.userid===updatedUser.userid?updatedUser:employee
-      )
-    );
-  }
-
-  const handleCloseUpdate=()=>{
-    setIsUpdateOpen(false);
-    setEditUserId(null);
-  }
-
-  const handleUserDelete = (deletedUserId: number) => {
-    setEmployees(prevEmployees => 
-      prevEmployees.filter(employee => employee.userid !== deletedUserId)
-    );
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className='min-h-screen flex justify-center items-center'>
-        <div className='text-gray-600 dark:text-gray-400 animate-spin rounded-full'></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
       </div>
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <div className='min-h-screen flex justify-center items-center'>
-        <p className='text-red-500'>{error}</p>
+        <p className='text-red-500'>{error.message}</p>
       </div>
     );
   }
@@ -133,7 +134,7 @@ const EmployeesPage: React.FC = () => {
           </div>
           <div className='lg:col-span-2'>
             <div className='grid grid:cols-1 md:grid-cols-2 gap-6'>
-              {employees.map((employee) => (
+              {employees?.map((employee) => (
                 <EmployeeCard 
                   key={employee.userid} 
                   employee={employee} 

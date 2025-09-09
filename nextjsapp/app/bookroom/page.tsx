@@ -1,6 +1,7 @@
 'use client'
-import React, { useEffect, useState, useRef } from "react";
-import { Clock, Users, Building2, Search, Filter, X, Check, ChevronDown } from 'lucide-react';
+import React, { useState, useRef, useEffect } from "react";
+import { Clock, Users, Building2, Search, Filter, X, Check, ChevronDown, MapPin } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from "../../context/AuthContext";
 import { roomService, type Room } from "../../api/room.service";
 import { bookingService, type CreateBookingRequest } from "../../api/booking.service";
@@ -32,6 +33,7 @@ interface AttendeeOption {
 
 const BookRoomPage: React.FC = () => {
     const { user } = useAuth();
+    const queryClient = useQueryClient();
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [capacityFilter, setCapacityFilter] = useState<string>("");
@@ -43,15 +45,8 @@ const BookRoomPage: React.FC = () => {
     const [isBookingFormOpen, setIsBookingFormOpen] = useState(false);
     const [attendeeSearch, setAttendeeSearch] = useState("");
     const [showAttendeeDropdown, setShowAttendeeDropdown] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
-    const [isLoadingRooms, setIsLoadingRooms] = useState(true);
-    const [roomsData, setRoomsData] = useState<Room[]>([]);
-    const [availableRooms, setAvailableRooms] = useState<Room[]>([]);
-    const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
-    const [availableAttendees, setAvailableAttendees] = useState<AttendeeOption[]>([]);
-    const [isLoadingAttendees, setIsLoadingAttendees] = useState(false);
 
     const attendeeInputRef = useRef<HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -66,47 +61,106 @@ const BookRoomPage: React.FC = () => {
         attendees: []
     });
 
-    useEffect(() => {
-        const fetchRooms = async () => {
-            try {
-                const response = await roomService.getAllRooms();
-                setRoomsData(response.rooms);
-            } catch (err: any) {
-                console.error("Error fetching rooms:", err);
-                setRoomsData([]);
-                setError("Failed to fetch rooms. Please refresh the page.");
-            } finally {
-                setIsLoadingRooms(false);
-            }
-        };
-        fetchRooms();
-    }, []);
+    // Query for rooms
+    const {
+        data: roomsData = [],
+        isLoading: isLoadingRooms,
+        error: roomsError
+    } = useQuery({
+        queryKey: ['rooms'],
+        queryFn: async () => {
+            const response = await roomService.getAllRooms();
+            return response.rooms;
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            if (!user) return;
+    // Query for users (attendees)
+    const {
+        data: availableAttendees = [],
+        isLoading: isLoadingAttendees,
+    } = useQuery({
+        queryKey: ['users', user?.userid],
+        queryFn: async () => {
+            if (!user) return [];
+            const users = await userService.getUsers();
+            return users
+                .filter(u => u.userid !== user.userid)
+                .map(u => ({
+                    userid: u.userid!,
+                    name: u.name,
+                    email: u.email
+                }));
+        },
+        enabled: !!user,
+        staleTime: 10 * 60 * 1000,
+    });
+
+    // Query for available rooms (conditional)
+    const {
+        data: availableRooms = [],
+        isLoading: isCheckingAvailability,
+    } = useQuery({
+        queryKey: ['availableRooms', dateFilter, startTimeFilter, endTimeFilter],
+        queryFn: async () => {
+            const startDateTime = new Date(`${dateFilter}T${startTimeFilter}`);
+            const endDateTime = new Date(`${dateFilter}T${endTimeFilter}`);
             
-            setIsLoadingAttendees(true);
-            try {
-                const users = await userService.getUsers();
-                const filteredUsers = users
-                    .filter(u => u.userid !== user.userid)
-                    .map(u => ({
-                        userid: u.userid!,
-                        name: u.name,
-                        email: u.email
-                    }));
-                setAvailableAttendees(filteredUsers);
-            } catch (err: any) {
-                console.error("Error fetching users:", err);
-                setAvailableAttendees([]);
-            } finally {
-                setIsLoadingAttendees(false);
+            const response = await bookingService.getAvailableRooms(
+                startDateTime.toISOString(),
+                endDateTime.toISOString()
+            );
+            
+            if (response.success && response.data) {
+                return response.data;
             }
-        };
-        fetchUsers();
-    }, [user]);
+            return [];
+        },
+        enabled: showAvailableOnly && !!dateFilter && !!startTimeFilter && !!endTimeFilter,
+        staleTime: 1 * 60 * 1000,
+    });
 
+    // Mutation for booking room
+    const bookRoomMutation = useMutation({
+        mutationFn: async (bookingData: CreateBookingRequest) => {
+            return await bookingService.bookRoom(bookingData);
+        },
+        onSuccess: (response) => {
+            if (response.success) {
+                setSuccess(true);
+                
+                // Reset form
+                setBookingForm({
+                    roomid: null,
+                    date: "",
+                    starttime: "",
+                    endtime: "",
+                    title: "",
+                    description: "",
+                    attendees: []
+                });
+                setSelectedRoom(null);
+                
+                // Invalidate queries to refresh data
+                queryClient.invalidateQueries({ queryKey: ['bookings'] });
+                queryClient.invalidateQueries({ queryKey: ['userBookings'] });
+                queryClient.invalidateQueries({ queryKey: ['availableRooms'] });
+                
+                setTimeout(() => {
+                    setSuccess(false);
+                    setIsBookingFormOpen(false);
+                }, 2000);
+            } else {
+                setError(response.message || "Failed to book room");
+            }
+        },
+        onError: (err: any) => {
+            console.error("Error booking room:", err);
+            setError(err.message || "Network error. Please check your connection and try again.");
+        }
+    });
+
+    // Handle click outside for dropdown
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (
@@ -125,37 +179,12 @@ const BookRoomPage: React.FC = () => {
         };
     }, []);
 
+    // Show error from queries if any
     useEffect(() => {
-        const checkAvailability = async () => {
-            if (showAvailableOnly && dateFilter && startTimeFilter && endTimeFilter) {
-                setIsCheckingAvailability(true);
-                try {
-                    const startDateTime = new Date(`${dateFilter}T${startTimeFilter}`);
-                    const endDateTime = new Date(`${dateFilter}T${endTimeFilter}`);
-                    
-                    const response = await bookingService.getAvailableRooms(
-                        startDateTime.toISOString(),
-                        endDateTime.toISOString()
-                    );
-                    
-                    if (response.success && response.data) {
-                        setAvailableRooms(response.data);
-                    } else {
-                        setAvailableRooms([]);
-                    }
-                } catch (err: any) {
-                    console.error("Error checking availability:", err);
-                    setAvailableRooms([]);
-                } finally {
-                    setIsCheckingAvailability(false);
-                }
-            } else {
-                setAvailableRooms([]);
-            }
-        };
-
-        checkAvailability();
-    }, [showAvailableOnly, dateFilter, startTimeFilter, endTimeFilter]);
+        if (roomsError) {
+            setError("Failed to fetch rooms. Please refresh the page.");
+        }
+    }, [roomsError]);
 
     const getTomorrowDate = () => {
         const tomorrow = new Date();
@@ -291,71 +320,19 @@ const BookRoomPage: React.FC = () => {
             return;
         }
 
-        setIsSubmitting(true);
+        const startDateTime = new Date(`${bookingForm.date}T${bookingForm.starttime}`);
+        const endDateTime = new Date(`${bookingForm.date}T${bookingForm.endtime}`);
 
-        try {
-            const startDateTime = new Date(`${bookingForm.date}T${bookingForm.starttime}`);
-            const endDateTime = new Date(`${bookingForm.date}T${bookingForm.endtime}`);
+        const bookingData: CreateBookingRequest = {
+            title: bookingForm.title.trim(),
+            description: bookingForm.description.trim() || undefined,
+            starttime: startDateTime.toISOString(),
+            endtime: endDateTime.toISOString(),
+            roomid: bookingForm.roomid!,
+            attendees: bookingForm.attendees.length > 0 ? bookingForm.attendees : undefined
+        };
 
-            const bookingData: CreateBookingRequest = {
-                title: bookingForm.title.trim(),
-                description: bookingForm.description.trim() || undefined,
-                starttime: startDateTime.toISOString(),
-                endtime: endDateTime.toISOString(),
-                roomid: bookingForm.roomid!,
-                attendees: bookingForm.attendees.length > 0 ? bookingForm.attendees : undefined
-            };
-
-            console.log('Sending booking data:', bookingData);
-
-            const response = await bookingService.bookRoom(bookingData);
-
-            if (response.success) {
-                console.log('Booking successful:', response);
-                setSuccess(true);
-
-                setBookingForm({
-                    roomid: null,
-                    date: "",
-                    starttime: "",
-                    endtime: "",
-                    title: "",
-                    description: "",
-                    attendees: []
-                });
-                setSelectedRoom(null);
-
-                if (showAvailableOnly && dateFilter && startTimeFilter && endTimeFilter) {
-                    const startDateTime = new Date(`${dateFilter}T${startTimeFilter}`);
-                    const endDateTime = new Date(`${dateFilter}T${endTimeFilter}`);
-                    
-                    try {
-                        const availabilityResponse = await bookingService.getAvailableRooms(
-                            startDateTime.toISOString(),
-                            endDateTime.toISOString()
-                        );
-                        
-                        if (availabilityResponse.success && availabilityResponse.data) {
-                            setAvailableRooms(availabilityResponse.data);
-                        }
-                    } catch (err) {
-                        console.error("Error refreshing availability:", err);
-                    }
-                }
-
-                setTimeout(() => {
-                    setSuccess(false);
-                    setIsBookingFormOpen(false);
-                }, 2000);
-            } else {
-                setError(response.message || "Failed to book room");
-            }
-        } catch (err: any) {
-            console.error("Error booking room:", err);
-            setError(err.message || "Network error. Please check your connection and try again.");
-        } finally {
-            setIsSubmitting(false);
-        }
+        bookRoomMutation.mutate(bookingData);
     };
 
     const resetForm = () => {
@@ -448,7 +425,6 @@ const BookRoomPage: React.FC = () => {
                             <option value="microphone">Microphone</option>
                             <option value="speaker">Speaker</option>
                         </select>
-
 
                         <div className="flex items-center space-x-2 px-4 py-2">
                             <input
@@ -605,24 +581,24 @@ const BookRoomPage: React.FC = () => {
                     </div>
                 )}
 
-                {!isLoadingRooms && roomsData.length===0 &&(
+                {!isLoadingRooms && roomsData.length === 0 && (
                     <div className="text-center py-12">
                         <X className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                         <p className="text-lg text-gray-600 dark:text-gray-400 mb-2">No rooms present in the database</p>
                         {
-                            user?.role==='admin'?(
+                            user?.role === 'admin' ? (
                                 <Link href='/registerroom'
                                  className="inline-flex items-center justify-center px-3 py-2 rounded-xl bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold shadow-md hover:from-red-700 hover:to-pink-700 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]">
                                     Register Room
                                 </Link>
-                            ):(
+                            ) : (
                                 <p className="text-gray-500 dark:text-gray-500">Please contact an admin to add rooms</p>
                             )
                         }
                     </div>
                 )}
                 
-                {!isLoadingRooms&&  filteredRooms.length===0 &&(
+                {!isLoadingRooms && filteredRooms.length === 0 && roomsData.length > 0 && (
                     <div className="text-center py-12">
                         <Filter className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                         <p className="text-lg text-gray-600 dark:text-gray-400 mb-2">No rooms match your criteria</p>
@@ -671,7 +647,7 @@ const BookRoomPage: React.FC = () => {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Description (optional)
+                                        Description
                                     </label>
                                     <textarea
                                         name="description"
@@ -730,7 +706,7 @@ const BookRoomPage: React.FC = () => {
 
                                 <div className="relative">
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Attendees (optional)
+                                        Attendees 
                                     </label>
 
                                     <div className="relative">
@@ -861,20 +837,17 @@ const BookRoomPage: React.FC = () => {
                                     <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                                         <div className="flex items-center">
                                             <Building2 className="w-4 h-4 mr-2 text-gray-500" />
-                                            <span className="font-medium">Room:</span> 
+                                            <span className="font-medium">Room:</span>
                                             <span className="ml-1">{selectedRoom.roomname}</span>
                                         </div>
                                         <div className="flex items-center">
-                                            <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            </svg>
-                                            <span className="font-medium">Location:</span> 
+                                            <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                                            <span className="font-medium">Location:</span>
                                             <span className="ml-1">{selectedRoom.roomlocation}</span>
                                         </div>
                                         <div className="flex items-center">
                                             <Users className="w-4 h-4 mr-2 text-gray-500" />
-                                            <span className="font-medium">Capacity:</span> 
+                                            <span className="font-medium">Capacity:</span>
                                             <span className="ml-1">{selectedRoom.capacity} people</span>
                                         </div>
                                         <div className="flex items-start">
@@ -899,17 +872,17 @@ const BookRoomPage: React.FC = () => {
                                     <button
                                         type="button"
                                         onClick={resetForm}
-                                        disabled={isSubmitting}
+                                        disabled={bookRoomMutation.isPending}
                                         className="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
-                                        disabled={isSubmitting}
+                                        disabled={bookRoomMutation.isPending}
                                         className="flex-1 bg-gradient-to-r from-red-600 to-pink-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-red-700 hover:to-pink-700 focus:ring-4 focus:ring-red-200 dark:focus:ring-red-800 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                                     >
-                                        {isSubmitting ? (
+                                        {bookRoomMutation.isPending ? (
                                             <div className="flex items-center justify-center">
                                                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                                                 Booking...
