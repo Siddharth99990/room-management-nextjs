@@ -157,7 +157,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room,onDelete,onUpdate }) => {
                             <button 
                                 onClick={handleDeleteClick}
                                 className="flex items-center justify-center bg-red-600 hover:bg-red-700 text-white py-2 px-3 rounded-lg transition-all duration-300"
-                                title="Delete User"
+                                title="Delete Room"
                             >
                                 <Trash2 className="w-4 h-4" />
                             </button>
