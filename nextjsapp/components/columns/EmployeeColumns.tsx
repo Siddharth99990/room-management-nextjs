@@ -16,6 +16,7 @@ import { userService } from "@/api/user.service";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import React from "react";
+import { useAuth } from "@/context/AuthContext";
 
 // Role Badge Component
 const RoleBadge = ({ role }: { role: string }) => {
@@ -63,7 +64,6 @@ const EmployeeCard = ({ employee }: { employee: User }) => {
 
   return (
     <div className="flex items-center space-x-3 py-2">
-      {/* Avatar */}
       <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-full text-white font-semibold text-sm shadow-md">
         {initials}
       </div>
@@ -96,6 +96,8 @@ export const getEmployeeColumns = (
   const ActionButtons = ({ row }: { row: any }) => {
     const queryClient = useQueryClient();
     const user = row.original as User;
+    const { user: currentUser } = useAuth();
+
 
     const deleteMutation = useMutation({
       mutationFn: () => userService.deleteUser(user.userid!),
@@ -123,7 +125,7 @@ export const getEmployeeColumns = (
                 size='sm'
                 onClick={()=>deleteMutation.mutate()}
                 disabled={deleteMutation.isPending}
-                className="h-8 px-3 text-red-900 bg-red-400 dark:text-red-300 dark:bg-red-500"
+                className="h-8 px-3 text-red-900 bg-red-400 dark:text-red-300 dark:bg-red-500 hover:bg-red-600"
                 >{deleteMutation.isPending?"Deleting...":"Confirm"}</Button>
               <Button 
                 variant="outline"
@@ -149,22 +151,37 @@ export const getEmployeeColumns = (
           onClick={() => onEdit(user.userid!)}
           className="h-8 px-3 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900 dark:hover:text-red-300"
         >
-          <Edit className="h-3 w-3 mr-1" />
-          Edit
+          {
+            !isSelf?(
+              <>
+                <Edit className="h-3 w-3 mr-1" />
+                Edit
+              </>
+            ):(
+              <span className="flex items-center justify-center w-32">
+                <Edit className="h-3 w-3 mr-1" />
+                Edit
+              </span>
+            )
+          }
         </Button>
         
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-           setConfirming(true)
-          }}
-          disabled={deleteMutation.isPending}
-          className="h-8 px-3 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900 dark:hover:text-red-300"
-        >
-          <Trash2 className="h-3 w-3 mr-1" />
-          Delete
-        </Button>
+        {!isSelf?(
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+              setConfirming(true)
+              }}
+              disabled={deleteMutation.isPending}
+              className="h-8 px-3 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900 dark:hover:text-red-300"
+            >
+              <Trash2 className="h-3 w-3 mr-1" />
+              Delete
+            </Button>
+          </>
+        ):[]}
       </div>
     );
   };

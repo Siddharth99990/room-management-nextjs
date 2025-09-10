@@ -6,7 +6,7 @@ import { roomService, type Room } from "../api/room.service";
 interface UpdateRoomForm {
     roomname: string;
     roomlocation: string;
-    capacity: string; // Changed from number to string
+    capacity: string;
     equipment: string[];
 }
 
@@ -51,7 +51,7 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
     const [updateForm, setUpdateForm] = useState<UpdateRoomForm>({
         roomname: '',
         roomlocation: '',
-        capacity: '', // Initialize as empty string
+        capacity: '',
         equipment: [],
     });
 
@@ -69,7 +69,7 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
                     setUpdateForm({
                         roomname: room.roomname,
                         roomlocation: room.roomlocation,
-                        capacity: room.capacity.toString(), // Convert to string
+                        capacity: room.capacity.toString(), 
                         equipment: room.equipment,
                     });
                 } else {
@@ -89,7 +89,6 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
         const { name, value } = e.target;
         
         if (name === 'capacity') {
-            // Allow only numbers and empty string
             if (value === '' || /^\d+$/.test(value)) {
                 setUpdateForm(prev => ({
                     ...prev,
@@ -185,7 +184,7 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
             const updateData = {
                 roomname: updateForm.roomname,
                 roomlocation: updateForm.roomlocation,
-                capacity: parseInt(updateForm.capacity), // Convert to number for API
+                capacity: parseInt(updateForm.capacity), 
                 equipment: updateForm.equipment
             };
 

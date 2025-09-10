@@ -58,7 +58,7 @@ const EmployeesPage: React.FC = () => {
     };
   }, [employees]);
 
-  const employeeColumns = getEmployeeColumns(handleUserUpdate,user!.userid);
+  const employeeColumns = getEmployeeColumns(handleUserUpdate, user ? user.userid : null);
 
   if (isError) {
     return (
@@ -146,7 +146,7 @@ const EmployeesPage: React.FC = () => {
                 filterPlaceholder="Search employees..."
                 isLoading={isLoading}
                 enableRowSelection={true}
-                enableColumnVisibility={true}
+                enableColumnVisibility={false}
                 enableGlobalSearch={true}
                 pageSize={10}
               />

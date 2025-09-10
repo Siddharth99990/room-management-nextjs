@@ -1,30 +1,75 @@
-"use client"
+"use client";
 
-import { ColumnDef } from "@tanstack/react-table"
-import { Booking } from "@/api/booking.service"
-import { MoreHorizontal, ArrowUpDown } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ColumnDef } from "@tanstack/react-table";
+import { Booking } from "@/api/booking.service";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { bookingService } from "@/api/booking.service"
-import toast from "react-hot-toast"
-import { useAuth } from "@/context/AuthContext"
+  MoreHorizontal,
+  ArrowUpDown,
+  Edit,
+  Trash2,
+  Calendar,
+  Clock,
+  User,
+  Building2
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { bookingService } from "@/api/booking.service";
+import toast from "react-hot-toast";
+import { useAuth } from "@/context/AuthContext";
+import { cn } from "@/lib/utils";
+import React from "react";
+
+// Status Badge Component
+const StatusBadge = ({ status }: { status: string }) => {
+  const getStatusStyles = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'confirmed':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+    }
+  };
+
+  return (
+    <span className={cn(
+      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize",
+      getStatusStyles(status)
+    )}>
+      {status}
+    </span>
+  );
+};
+
+// Booking Details Component
+const BookingDetails = ({ booking }: { booking: Booking }) => (
+  <div className="flex items-center space-x-3 py-2">
+    <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg text-white font-semibold text-sm shadow-md">
+      <Calendar className="h-6 w-6" />
+    </div>
+    <div className="min-w-0 flex-1 space-y-1">
+      <p className="font-semibold text-gray-900 dark:text-white truncate">
+        {booking.title}
+      </p>
+      <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+        <Building2 className="h-3 w-3 mr-1.5 flex-shrink-0" />
+        <span className="truncate">{booking.roomid.roomname}</span>
+      </div>
+    </div>
+  </div>
+);
 
 export const getBookingColumns = (
   onEdit: (bookingid: number) => void,
 ): ColumnDef<Booking>[] => {
-  
-  const ActionCell = ({ row }: { row: any }) => {
+
+  const ActionButtons = ({ row }: { row: any }) => {
     const { user } = useAuth();
     const queryClient = useQueryClient();
     const booking = row.original as Booking;
+    const [confirming, setConfirming] = React.useState(false);
 
     const cancelMutation = useMutation({
       mutationFn: () => bookingService.cancelBooking(booking.bookingid, user!.userid!),
@@ -40,84 +85,161 @@ export const getBookingColumns = (
     const canModify = user?.userid === booking.createdBy.userid;
     const isPastBooking = new Date(booking.endtime) < new Date();
 
+    if (confirming) {
+      return (
+        <div className="flex items-center gap-2">
+          {canModify && !isPastBooking ? (
+            <>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => cancelMutation.mutate()}
+                disabled={cancelMutation.isPending}
+                className="h-8 px-3 text-red-900 bg-red-400 dark:text-red-300 dark:bg-red-500 hover:bg-red-600"
+              >
+                {cancelMutation.isPending ? "Cancelling..." : "Confirm"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setConfirming(false)}
+                className="h-8 px-3"
+              >
+                Cancel
+              </Button>
+            </>
+          ) : null}
+        </div>
+      );
+    }
+
     return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
+      <div className="flex items-center gap-2">
+        {canModify && !isPastBooking ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onEdit(booking.bookingid)}
+            className="h-8 px-3 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900 dark:hover:text-red-300"
+          >
+            <Edit className="h-3 w-3 mr-1" />
+            Edit
           </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          {canModify && !isPastBooking && (
-            <DropdownMenuItem onClick={() => onEdit(booking.bookingid)}>
-              Edit Booking
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuSeparator />
-          {canModify && booking.status === 'confirmed' && !isPastBooking && (
-            <DropdownMenuItem 
-              onClick={() => {
-                if (window.confirm(`Are you sure you want to cancel "${booking.title}"?`)) {
-                    cancelMutation.mutate();
-                }
-              }}
-              className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900"
-              disabled={cancelMutation.isPending}
-            >
-              {cancelMutation.isPending ? "Cancelling..." : "Cancel Booking"}
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    )
-  }
+        ) : null}
+
+        {!canModify ? (
+          <p className="text-sm text-gray-500">You cannot edit this booking</p>
+        ) : null}
+
+        {canModify && booking.status === 'confirmed' && !isPastBooking ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setConfirming(true)}
+            disabled={cancelMutation.isPending}
+            className="h-8 px-3 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900 dark:hover:text-red-300"
+          >
+            <Trash2 className="h-3 w-3 mr-1" />
+            Cancel
+          </Button>
+        ) : null}
+
+        {canModify && isPastBooking ? (
+          <p className="text-sm text-gray-500">This booking is in the past</p>
+        ) : null}
+      </div>
+    );
+  };
 
   return [
     {
-      accessorKey: "bookingid",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            ID
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
-    },
-    {
       accessorKey: "title",
-      header: "Title",
-    },
-    {
-        accessorKey: "roomid.roomname",
-        header: "Room",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 font-semibold hover:bg-transparent -ml-1"
+        >
+          Booking Details
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => <BookingDetails booking={row.original} />,
+      size: 300,
     },
     {
       accessorKey: "createdBy.name",
-      header: "Host",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 font-semibold hover:bg-transparent"
+        >
+          Host
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="flex items-center">
+          <User className="h-4 w-4 mr-2 text-gray-500" />
+          <span>{row.original.createdBy.name}</span>
+        </div>
+      ),
+      sortingFn: "alphanumeric",
     },
     {
       accessorKey: "starttime",
-      header: "Start Time",
-      cell: ({ row }) => new Date(row.getValue("starttime")).toLocaleString(),
-    },
-    {
-      accessorKey: "endtime",
-      header: "End Time",
-      cell: ({ row }) => new Date(row.getValue("endtime")).toLocaleString(),
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 font-semibold hover:bg-transparent"
+        >
+          Schedule
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const booking = row.original;
+        const startTime = new Date(booking.starttime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const endTime = new Date(booking.endtime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const startDate = new Date(booking.starttime).toLocaleDateString([], { day: '2-digit', month: 'short' });
+        return (
+          <div className="space-y-1">
+            <div className="flex items-center text-sm text-gray-900 dark:text-white">
+              <Calendar className="h-3 w-3 mr-1.5 text-gray-500 flex-shrink-0" />
+              <span>{startDate}</span>
+            </div>
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+              <Clock className="h-3 w-3 mr-1.5 flex-shrink-0" />
+              <span>{startTime} - {endTime}</span>
+            </div>
+          </div>
+        );
+      },
+      accessorFn: (row) => new Date(row.starttime).getTime(),
+      sortingFn: "basic",
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 font-semibold hover:bg-transparent"
+        >
+          Status
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => <StatusBadge status={row.getValue("status")} />,
     },
     {
       id: "actions",
-      cell: ActionCell,
+      header: "Actions",
+      enableHiding: false,
+      cell: ActionButtons,
+      size: 200,
     },
-  ]
+  ];
 };
