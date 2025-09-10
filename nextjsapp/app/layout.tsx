@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import NavBarLayout from "@/layouts/Navbar";
 import ProtectedRoute from "@/context/ProtectedRoute";
 import QueryProvider from "@/providers/QueryProvider";
+import ToastProvider from "@/providers/ToastProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,9 +33,10 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <QueryProvider>
-              <NavBarLayout>
-                {children}
-              </NavBarLayout>
+              <ToastProvider/>
+                <NavBarLayout>
+                  {children}
+                </NavBarLayout>
             </QueryProvider>
           </AuthProvider>
         </ThemeProvider>
