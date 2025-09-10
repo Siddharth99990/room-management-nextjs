@@ -1,4 +1,3 @@
-// app/bookings/page.tsx
 'use client';
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,12 +16,10 @@ const BookingsPage: React.FC = () => {
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [editBookingId, setEditBookingId] = useState<number | null>(null);
 
-  // Fetch bookings using useQuery
   const { data: bookings, isLoading, isError, error } = useQuery({
     queryKey: ['bookings'],
     queryFn: async () => {
       const response = await bookingService.getAllBookings();
-      // Convert date strings to Date objects
       return response.bookings.map(booking => ({
         ...booking,
         starttime: new Date(booking.starttime),
@@ -31,7 +28,6 @@ const BookingsPage: React.FC = () => {
     }
   });
 
-  // Handle booking cancellation with useMutation
   const cancelMutation = useMutation({
     mutationFn: (bookingId: number) => {
       if (!user?.userid) throw new Error("User not authenticated");

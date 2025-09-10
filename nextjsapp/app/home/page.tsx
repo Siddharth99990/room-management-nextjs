@@ -20,16 +20,13 @@ const HomePage = () => {
     const [roomIndex, setRoomIndex] = useState(0);
     const [showPreviousBookings, setShowPreviousBookings] = useState(false);
 
-    // Query 1: Fetch user's bookings (as creator or attendee)
     const { data: userBookings, isLoading: isLoadingBookings } = useQuery({
         queryKey: ['userBookings', user?.userid],
         queryFn: async () => {
             if (!user) return [];
 
-            // Fetch bookings created by the user
             const createdBookingsResponse = await bookingService.getAllBookings({ createdBy: user.userid, limit: 100 });
-            
-            // Fetch all bookings to find where the user is an attendee
+
             const allBookingsResponse = await bookingService.getAllBookings({ limit: 100 });
 
             let allUserBookings: Booking[] = [];
@@ -46,16 +43,14 @@ const HomePage = () => {
                     );
                 allUserBookings.push(...attendeeBookings);
             }
-            
-            // Convert date strings to Date objects and sort chronologically
+
             return allUserBookings
                 .map(b => ({ ...b, starttime: new Date(b.starttime), endtime: new Date(b.endtime) }))
                 .sort((a, b) => a.starttime.getTime() - b.starttime.getTime());
         },
-        enabled: !!user // This query will only run when the user object is available
+        enabled: !!user 
     });
 
-    // Query 2: Fetch all rooms for the featured carousel
     const { data: roomsData, isLoading: isLoadingRooms } = useQuery({
         queryKey: ['rooms'],
         queryFn: async () => {
@@ -64,23 +59,20 @@ const HomePage = () => {
         }
     });
 
-    // Query 3: Fetch user count (for admins only)
     const { data: userLength, isLoading: isLoadingCount } = useQuery({
         queryKey: ['userCount'],
         queryFn: async () => {
             const users = await userService.getUsers();
             return users.length;
         },
-        enabled: user?.role === 'admin' // This query will only run if the user is an admin
+        enabled: user?.role === 'admin'
     });
 
-    // Effect for the live clock
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
 
-    // Logic to filter bookings based on the 'showPreviousBookings' toggle
     const getCurrentUserBookings = () => {
         if (!user || !userBookings || userBookings.length === 0) return [];
 
@@ -102,13 +94,11 @@ const HomePage = () => {
     const displayBookings = getCurrentUserBookings();
     const featuredRooms = roomsData?.slice(0, 5) ?? [];
 
-    // Carousel navigation handlers
     const handlePreviousBooking = () => setBookingIndex((prev) => (prev > 0 ? prev - 1 : prev));
     const handleNextBooking = () => setBookingIndex((prev) => (prev < displayBookings.length - 1 ? prev + 1 : prev));
     const handlePreviousRoom = () => setRoomIndex((prev) => (prev > 0 ? prev - 1 : prev));
     const handleNextRoom = () => setRoomIndex((prev) => (prev < featuredRooms.length - 1 ? prev + 1 : prev));
-    
-    // Static feature descriptions
+
     const features = [
         {
           icon: <Users className="w-6 h-6" />,

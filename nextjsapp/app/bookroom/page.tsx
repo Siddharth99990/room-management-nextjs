@@ -6,7 +6,6 @@ import { useAuth } from "../../context/AuthContext";
 import { roomService, type Room } from "../../api/room.service";
 import { bookingService, type CreateBookingRequest } from "../../api/booking.service";
 import { userService } from "../../api/user.service";
-import Link from "next/link";
 import ProtectedRoute from "@/context/ProtectedRoute";
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -42,7 +41,6 @@ const BookRoomPage: React.FC = () => {
     const attendeeInputRef = useRef<HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // Initialize react-hook-form with zodResolver
     const {
         register,
         handleSubmit,
