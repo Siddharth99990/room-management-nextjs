@@ -106,7 +106,7 @@ const BookingsPage: React.FC = () => {
 
               {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-red-300 dark:border-red-700 hover:scale-[1.02] transition-all duration-300">
                   <div className="flex items-center">
                     <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
                       <Calendar className="h-6 w-6 text-red-600 dark:text-red-400" />
@@ -117,7 +117,7 @@ const BookingsPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-red-300 dark:border-red-700 hover:scale-[1.02] transition-all duration-300">
                   <div className="flex items-center">
                     <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
                       <CheckCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
@@ -128,7 +128,7 @@ const BookingsPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-red-300 dark:border-red-700 hover:scale-[1.02] transition-all duration-300">
                   <div className="flex items-center">
                     <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
                       <XCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
@@ -143,7 +143,7 @@ const BookingsPage: React.FC = () => {
             </div>
             
             {/* Data Table */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:text-white p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:text-white p-4 border-2 border-red-300 dark:border-red-700">
                 <DataTable 
                   columns={bookingColumns}
                   data={bookings}

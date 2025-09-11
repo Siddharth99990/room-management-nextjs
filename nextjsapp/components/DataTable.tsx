@@ -138,7 +138,7 @@ export function DataTable<TData, TValue>({
                 placeholder={filterPlaceholder}
                 value={globalFilter ?? ""}
                 onChange={(e) => setGlobalFilter(e.target.value)}
-                className="pl-10 border-2 border-red-500 dark:border-2 dark:border-red-700"
+                className="pl-10 border-2 border-red-300 dark:border-2 dark:border-red-700"
               />
             </div>
           )}
@@ -177,51 +177,8 @@ export function DataTable<TData, TValue>({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-
-          {/* Refresh Button */}
-          {onRefresh && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onRefresh}
-              disabled={isLoading}
-              className="h-9"
-            >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            </Button>
-          )}
-
-          {/* Export Button */}
-          {onExport && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onExport}
-              className="h-9"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-          )}
         </div>
       </div>
-
-      {/* Selection Info */}
-      {enableRowSelection && selectedRowCount > 0 && (
-        <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-950 px-4 py-2 rounded-lg border">
-          <p className="text-sm text-blue-700 dark:text-blue-300">
-            {selectedRowCount} of {totalRows} row(s) selected
-          </p>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setRowSelection({})}
-            className="text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200"
-          >
-            Clear selection
-          </Button>
-        </div>
-      )}
 
       {/* Table Section */}
       <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
@@ -263,7 +220,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  className="border-b border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="px-4 py-3">
@@ -279,7 +236,6 @@ export function DataTable<TData, TValue>({
                   className="h-32 text-center"
                 >
                   <div className="flex flex-col items-center space-y-2">
-                    <div className="text-gray-400 text-lg">📋</div>
                     <span className="text-gray-500 dark:text-gray-400">No results found</span>
                     <span className="text-sm text-gray-400 dark:text-gray-500">
                       Try adjusting your search criteria
@@ -295,11 +251,6 @@ export function DataTable<TData, TValue>({
       {/* Pagination Section */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-50 dark:bg-gray-800/50 px-4 py-3 rounded-lg">
         <div className="text-sm text-gray-600 dark:text-gray-400 order-2 sm:order-1">
-          {enableRowSelection && selectedRowCount > 0 && (
-            <span className="mr-4">
-              {selectedRowCount} of {totalRows} row(s) selected
-            </span>
-          )}
           Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{" "}
           {Math.min(
             (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,

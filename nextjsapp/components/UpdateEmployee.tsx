@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { X, Check, User2, Shield, Mail, Edit } from 'lucide-react';
 import { userService, type User } from "../api/user.service";
+import toast from "react-hot-toast";
 
 interface UpdateUserForm {
     name: string;
@@ -131,7 +132,8 @@ const UpdateEmployeeModal: React.FC<UpdateUserModalProps> = ({
             const result = await userService.updateUser(userid, updateForm);
 
             if (result.success) {
-                console.log('User updated successfully');
+                toast.success("Employee updated successfully")
+                console.log('Employee updated successfully');
                 setSuccess(true);
                 
                 const updatedUser: User = {
@@ -145,7 +147,7 @@ const UpdateEmployeeModal: React.FC<UpdateUserModalProps> = ({
                 }
                 setOriginalUser(updatedUser);
             } else {
-                setError(result.message || 'Failed to update user');
+                setError(result.message || 'Failed to update employee');
             }
         } catch (err: any) {
             console.error("Update failed", err);
@@ -168,7 +170,7 @@ const UpdateEmployeeModal: React.FC<UpdateUserModalProps> = ({
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient-to-br dark:from-gray-800 dark:to-red-800 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 w-full max-w-md mx-auto">
+            <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-800 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 w-full max-w-md mx-auto">
                 <div className="p-6 sm:p-8 border-b border-gray-200/50 dark:border-gray-700/50 relative">
                     <button 
                         onClick={handleClose}
@@ -183,10 +185,10 @@ const UpdateEmployeeModal: React.FC<UpdateUserModalProps> = ({
                             <Edit className="w-6 sm:w-8 h-6 sm:h-8 text-white"/>
                         </div>
                         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                            Update User
+                            Update Employees
                         </h2>
                         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                            Modify user information
+                            Modify Employee information
                         </p>
                     </div>
                 </div>
@@ -198,17 +200,6 @@ const UpdateEmployeeModal: React.FC<UpdateUserModalProps> = ({
                         </div>
                     ) : (
                         <>
-                            {success && (
-                                <div className="mb-6 p-4 bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700 rounded-xl">
-                                    <div className="flex items-center">
-                                        <Check className="w-5 h-5 text-green-600 dark:text-green-300 mr-2" />
-                                        <p className="text-green-700 dark:text-green-300 font-medium text-sm">
-                                            User updated successfully.
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-
                             {error && (
                                 <div className="mb-6 p-4 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-xl">
                                     <p className="text-red-700 dark:text-red-300 text-sm">
@@ -264,7 +255,7 @@ const UpdateEmployeeModal: React.FC<UpdateUserModalProps> = ({
                                 {showConfirm ? (
                                     <div className="flex flex-col gap-4 pt-4">
                                         <p className="text-sm text-center mb-2">
-                                            Are you sure you want to update this user?
+                                            Are you sure you want to update this Employee?
                                         </p>
                                         <div className="flex gap-2">
                                             <button
@@ -292,7 +283,7 @@ const UpdateEmployeeModal: React.FC<UpdateUserModalProps> = ({
                                             disabled={isSubmitting}
                                             className="flex-1 bg-gradient-to-r from-red-600 to-pink-600 text-white py-2.5 sm:py-3 px-6 rounded-xl font-semibold hover:from-red-700 hover:to-pink-700 focus:ring-4 focus:ring-red-200 dark:focus:ring-red-800 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                                         >
-                                            Update User
+                                            Update Employee
                                         </button>
                                     </div>
                                 )}

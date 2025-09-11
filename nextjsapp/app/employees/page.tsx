@@ -98,38 +98,38 @@ const EmployeesPage: React.FC = () => {
               </div>
 
               {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-red-300 dark:border-red-700 hover:scale-[1.02] transition-all duration-300">
                   <div className="flex items-center">
                     <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
                       <Users className="h-6 w-6 text-red-600 dark:text-red-400" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Staff</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-white">Total Staff</p>
                       <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.total}</p>
                     </div>
                   </div>
                 </div>
                 
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-red-200 dark:border-red-700 hover:scale-[1.02] transition-all duration-300">
                   <div className="flex items-center">
                     <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
                       <Shield className="h-6 w-6 text-red-600 dark:text-red-400" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Admins</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-white">Admins</p>
                       <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.admins}</p>
                     </div>
                   </div>
                 </div>
                 
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-red-200 dark:border-red-700 hover:scale-[1.02] transition-all duration-300">
                   <div className="flex items-center">
                     <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
                       <User className="h-6 w-6 text-red-600 dark:text-red-400" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Employees</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-white">Employees</p>
                       <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.employees}</p>
                     </div>
                   </div>
@@ -138,7 +138,7 @@ const EmployeesPage: React.FC = () => {
             </div>
 
             {/* Data Table */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:text-white p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:text-white p-4 border-red-300 dark:border-red-700 border-2">
               <DataTable 
                 columns={employeeColumns} 
                 data={employees}
