@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { X, Check, Edit, Building2, MapPin, Users, Monitor } from 'lucide-react';
 import { roomService, type Room } from "../api/room.service";
+import toast from "react-hot-toast";
 
 interface UpdateRoomForm {
     roomname: string;
@@ -192,6 +193,7 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
             const result = await roomService.updateRoom(roomid, updateData);
 
             if (result.success) {
+                toast.success("Room updated successfully");
                 console.log('Room updated successfully');
                 setSuccess(true);
                 
@@ -231,7 +233,7 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient-to-br dark:from-gray-800 dark:to-red-800 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 w-full max-w-md mx-auto max-h-[90vh] overflow-y-auto">
+            <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-800 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 w-full max-w-md mx-auto max-h-[90vh] overflow-y-auto">
                 <div className="p-6 sm:p-8 border-b border-gray-200/50 dark:border-gray-700/50 relative">
                     <button 
                         onClick={handleClose}
@@ -261,17 +263,6 @@ const UpdateRoomModal: React.FC<UpdateRoomModalProps> = ({
                         </div>
                     ) : (
                         <>
-                            {success && (
-                                <div className="mb-6 p-4 bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700 rounded-xl">
-                                    <div className="flex items-center">
-                                        <Check className="w-5 h-5 text-green-600 dark:text-green-300 mr-2" />
-                                        <p className="text-green-700 dark:text-green-300 font-medium text-sm">
-                                            Room updated successfully.
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-
                             {error && (
                                 <div className="mb-6 p-4 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-xl">
                                     <p className="text-red-700 dark:text-red-300 text-sm">

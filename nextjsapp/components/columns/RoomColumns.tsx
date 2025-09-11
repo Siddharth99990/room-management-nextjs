@@ -12,6 +12,13 @@ import {
   Wifi,
   Monitor,
   Coffee,
+  LampDesk,
+  Lightbulb,
+  RockingChair,
+  Snowflake,
+  Table,
+  Video,
+  Volume2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -23,18 +30,18 @@ import React from "react";
 // Capacity Badge Component
 const CapacityBadge = ({ capacity }: { capacity: number }) => {
   const getCapacityStyles = (capacity: number) => {
-    if (capacity <= 5) {
-      return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-    } else if (capacity <= 15) {
-      return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+    if (capacity <= 6) {
+      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+    } else if (capacity <= 12) {
+      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
     } else {
-      return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
+      return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
     }
   };
 
   const getCapacityLabel = (capacity: number) => {
-    if (capacity <= 5) return "Small";
-    if (capacity <= 15) return "Medium";
+    if (capacity <= 6) return "Small";
+    if (capacity <= 12) return "Medium";
     return "Large";
   };
 
@@ -59,32 +66,58 @@ const Amenities = ({ amenities }: { amenities?: string[] }) => {
     );
   }
 
-  const getAmenityIcon = (amenity: string) => {
-    const lower = amenity.toLowerCase();
+  const getAmenityIcon = (name: string) => {
+    const lower = name.toLowerCase();
+
     if (lower.includes('wifi') || lower.includes('internet')) {
-      return <Wifi className="h-3 w-3" />;
+        return <Wifi className="h-3 w-3 mr-1" />;
     }
     if (lower.includes('projector') || lower.includes('screen') || lower.includes('display')) {
-      return <Monitor className="h-3 w-3" />;
+        return <Monitor className="h-3 w-3 mr-1" />;
     }
-    if (lower.includes('coffee') || lower.includes('refreshment')) {
-      return <Coffee className="h-3 w-3" />;
+    if (lower.includes('smart tv') || lower.includes('tv')) {
+        return <Monitor className="h-3 w-3 mr-1" />;
     }
-    return <Building2 className="h-3 w-3" />;
-  };
+    if (lower.includes('sound system') || lower.includes('audio')) {
+        return <Volume2 className="h-3 w-3 mr-1" />;
+    }
+    if (lower.includes('ac') || lower.includes('air conditioner')) {
+        return <Snowflake className="h-3 w-3 mr-1" />;
+    }
+    if (lower.includes('video conference') || lower.includes('conference')) {
+        return <Video className="h-3 w-3 mr-1" />;
+    }
+    if (lower.includes('lighting') || lower.includes('light')) {
+        return <Lightbulb className="h-3 w-3 mr-1" />;
+    }
+    if (lower.includes('whiteboard') || lower.includes('board')) {
+        return <Monitor className="h-3 w-3 mr-1" />;
+    }
+    if (lower.includes('chair')) {
+        return <RockingChair className="h-3 w-3 mr-1" />;
+    }
+    if (lower.includes('desk')) {
+        return <LampDesk className="h-3 w-3 mr-1" />;
+    }
+    if (lower.includes('long table') || lower.includes('table')) {
+        return <Table className="h-3 w-3 mr-1" />;
+    }
+    return <Building2 className="h-3 w-3 mr-1" />;
+};
+
 
   return (
     <div className="flex flex-wrap gap-1">
-      {amenities.slice(0, 3).map((amenity, index) => (
+      {amenities.slice(0, 4).map((amenity, index) => (
         <span
           key={index}
-          className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+          className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-red-500 text-white dark:bg-red-900 dark:text-white"
         >
           {getAmenityIcon(amenity)}
           <span className="ml-1 truncate max-w-20">{amenity}</span>
         </span>
       ))}
-      {amenities.length > 3 && (
+      {amenities.length > 4 && (
         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
           +{amenities.length - 3} more
         </span>
@@ -96,17 +129,13 @@ const Amenities = ({ amenities }: { amenities?: string[] }) => {
 // Room Details Component
 const RoomDetails = ({ room }: { room: Room }) => (
   <div className="flex items-center space-x-3 py-2">
-    <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg text-white font-semibold text-sm shadow-md">
+    <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-red-600 to-pink-600 dark:bg-gradient-to-br dark:from-red-900 dark:to-pink-900 rounded-lg text-white font-semibold text-sm shadow-md dark:text-red-500">
       <Building2 className="h-6 w-6" />
     </div>
     <div className="min-w-0 flex-1 space-y-1">
       <p className="font-semibold text-gray-900 dark:text-white truncate">
-        {room.roomname}
+        {room.roomname.charAt(0).toUpperCase()+room.roomname.slice(1)}
       </p>
-      <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-        <MapPin className="h-3 w-3 mr-1.5 flex-shrink-0" />
-        <span className="truncate">{room.roomlocation || 'Location not specified'}</span>
-      </div>
     </div>
   </div>
 );
@@ -225,7 +254,7 @@ export const getRoomColumns = (
       sortingFn: "basic",
     },
     {
-      accessorKey: "location",
+      accessorKey: "roomlocation",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -237,7 +266,7 @@ export const getRoomColumns = (
         </Button>
       ),
       cell: ({ row }) => {
-        const location = row.getValue("location") as string;
+        const location = row.getValue("roomlocation") as string;
         return (
           <div className="flex items-center">
             <MapPin className="h-4 w-4 mr-2 text-gray-500" />
@@ -247,9 +276,9 @@ export const getRoomColumns = (
       },
     },
     {
-      accessorKey: "amenities",
+      accessorKey: "equipment",
       header: "Amenities",
-      cell: ({ row }) => <Amenities amenities={row.getValue("amenities")} />,
+      cell: ({ row }) => <Amenities amenities={row.getValue("equipment")} />,
       enableSorting: false,
     },
   ];

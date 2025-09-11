@@ -61,22 +61,10 @@ const RoomsPage: React.FC = () => {
   // Stats calculations
   const stats = React.useMemo(() => {
     const totalCapacity = rooms.reduce((sum, room) => sum + (room.capacity || 0), 0);
-    const avgCapacity = rooms.length ? Math.round(totalCapacity / rooms.length) : 0;
-    
-    const locationCount = rooms.reduce((acc, room) => {
-      const location = room.roomlocation || 'Unknown';
-      acc[location] = (acc[location] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-    
-    const mostCommonLocation = Object.entries(locationCount)
-      .sort(([,a], [,b]) => b - a)[0]?.[0] || 'N/A';
 
     return {
       total: rooms.length,
       totalCapacity,
-      locations: Object.keys(locationCount).length,
-      mostCommonLocation
     };
   }, [rooms]);
 
@@ -112,11 +100,13 @@ const RoomsPage: React.FC = () => {
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                     Browse through
-                    <br/>
                     {user?.role === 'admin' && (
-                      <span className="bg-gradient-to-br from-red-600 to-gray-600 bg-clip-text text-transparent">
+                      <>
+                      <br/>
+                      <span className="bg-gradient-to-br from-red-600 to-pink-600 bg-clip-text text-transparent">
                         &
                       </span>
+                      </>
                     )}
                     <br/>
                     <span className="bg-gradient-to-br from-red-600 to-pink-600 bg-clip-text text-transparent">
@@ -141,39 +131,15 @@ const RoomsPage: React.FC = () => {
               </div>
 
               {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-red-300 dark:border-red-700 hover:scale-[1.02] transition-all duration-300">
                   <div className="flex items-center">
                     <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
                       <Building2 className="h-6 w-6 text-red-600 dark:text-red-400" />
                     </div>
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Rooms</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-white">Total Rooms</p>
                       <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.total}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
-                      <Users className="h-6 w-6 text-red-600 dark:text-red-400" />
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Capacity</p>
-                      <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.totalCapacity}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
-                      <MapPin className="h-6 w-6 text-red-600 dark:text-red-400" />
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Locations</p>
-                      <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.locations}</p>
                     </div>
                   </div>
                 </div>
@@ -181,7 +147,7 @@ const RoomsPage: React.FC = () => {
             </div>
             
             {/* Data Table */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:text-white p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:text-white p-4 dark:border-red-700 dark:border-2 border-2 border-red-300">
               <DataTable 
                 columns={roomColumns}
                 data={rooms}

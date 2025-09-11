@@ -4,7 +4,6 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import NavBarLayout from "@/layouts/Navbar";
-import ProtectedRoute from "@/context/ProtectedRoute";
 import QueryProvider from "@/providers/QueryProvider";
 import ToastProvider from "@/providers/ToastProvider";
 

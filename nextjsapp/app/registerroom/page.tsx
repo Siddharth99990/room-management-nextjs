@@ -192,7 +192,7 @@ const RegisterRoomPage = () => {
 
                             <div className="space-y-4 sm:space-y-6">
                             {features.map((feature,index)=>(
-                                <div key={index}className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-xl dark:gray-800/50 backdrop-blur-sm border border-gray-300/50 dark:border-gray-700/50 dark:hover:bf-gray-800/80 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
+                                <div key={index}className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-xl dark:bg-gray-800/50 backdrop-blur-sm border border-gray-300/50 dark:border-gray-700/50 dark:hover:bf-gray-800/80 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
                                     <div className="flex-shrink-0 w-10 sm:w-12 h-10 sm:h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center text-white">
                                         {feature.icon}
                                     </div>

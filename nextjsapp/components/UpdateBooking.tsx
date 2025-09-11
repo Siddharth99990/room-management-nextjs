@@ -378,7 +378,6 @@ const UpdateBookingModal: React.FC<UpdateBookingModalProps> = ({
                                         onChange={handleInputChange}
                                         disabled={isSubmitting}
                                         className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300 appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
-                                        
                                     >
                                         <option value="confirmed">Confirmed</option>
                                         <option value="cancelled">Cancelled</option>
