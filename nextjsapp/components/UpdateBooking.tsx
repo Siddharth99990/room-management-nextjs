@@ -3,6 +3,7 @@ import { X, Check, Edit, Calendar, Clock, Building2,  Users, FileText } from 'lu
 import { bookingService, type UpdateBookingRequest } from "../api/booking.service";
 import { type Booking } from '../api/booking.service';
 import { userService } from "../api/user.service";
+import toast from "react-hot-toast";
 
 interface UpdateBookingForm {
     title: string;
@@ -138,16 +139,19 @@ const UpdateBookingModal: React.FC<UpdateBookingModalProps> = ({
     const validateForm = (): boolean => {
         if (!updateForm.title.trim()) {
             setError('Title is required');
+            toast.error('Title is required');
             return false;
         }
 
         if (!updateForm.starttime) {
             setError('Start time is required');
+            toast.error('Start time is required');
             return false;
         }
 
         if (!updateForm.endtime) {
             setError('End time is required');
+            toast.error('End time is required');
             return false;
         }
 
@@ -157,11 +161,13 @@ const UpdateBookingModal: React.FC<UpdateBookingModalProps> = ({
 
         if (startDate >= endDate) {
             setError('End time must be after start time');
+            toast.error('End time must be after start time')
             return false;
         }
 
         if (startDate < now && updateForm.status === 'confirmed') {
             setError('Cannot schedule confirmed bookings in the past');
+            toast.error('Cannot schedule confirmed bookings in the past');
             return false;
         }
 
@@ -193,6 +199,7 @@ const UpdateBookingModal: React.FC<UpdateBookingModalProps> = ({
                 updateForm.status === originalBooking.status &&
                 !attendeesChanged) {
                 setError('No changes detected. Please modify at least one field.');
+                toast.error(`No changes detected. please modify at least one field.`);
                 return false;
             }
         }
@@ -232,6 +239,7 @@ const UpdateBookingModal: React.FC<UpdateBookingModalProps> = ({
             if (result.success) {
                 console.log('Booking updated successfully');
                 setSuccess(true);
+                toast.success("Booking updated successfully");
 
                 const updatedBooking: Booking = {
                     ...originalBooking!,
@@ -251,6 +259,7 @@ const UpdateBookingModal: React.FC<UpdateBookingModalProps> = ({
                 }
                 setOriginalBooking(updatedBooking); 
             } else {
+                toast.error(`Some error occurred ${result.message}`)
                 setError(result.message || 'Failed to update booking');
             }
         } catch (err: any) {
@@ -306,25 +315,6 @@ const UpdateBookingModal: React.FC<UpdateBookingModalProps> = ({
                         </div>
                     ) : (
                         <>
-                            {success && (
-                                <div className="mb-6 p-4 bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700 rounded-xl">
-                                    <div className="flex items-center">
-                                        <Check className="w-5 h-5 text-green-600 dark:text-green-300 mr-2" />
-                                        <p className="text-green-700 dark:text-green-300 font-medium text-sm">
-                                            Booking updated successfully.
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {error && (
-                                <div className="mb-6 p-4 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-xl">
-                                    <p className="text-red-700 dark:text-red-300 text-sm">
-                                        {error}
-                                    </p>
-                                </div>
-                            )}
-
                             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                                 <div className="relative">
                                     <FileText className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -336,7 +326,7 @@ const UpdateBookingModal: React.FC<UpdateBookingModalProps> = ({
                                         onChange={handleInputChange}
                                         disabled={isSubmitting}
                                         className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                                        required
+                                        
                                     />
                                 </div>
 
@@ -362,7 +352,7 @@ const UpdateBookingModal: React.FC<UpdateBookingModalProps> = ({
                                             onChange={handleInputChange}
                                             disabled={isSubmitting}
                                             className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                                            required
+                                            
                                         />
                                     </div>
 
@@ -375,7 +365,7 @@ const UpdateBookingModal: React.FC<UpdateBookingModalProps> = ({
                                             onChange={handleInputChange}
                                             disabled={isSubmitting}
                                             className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                                            required
+                                            
                                         />
                                     </div>
                                 </div>
@@ -388,7 +378,7 @@ const UpdateBookingModal: React.FC<UpdateBookingModalProps> = ({
                                         onChange={handleInputChange}
                                         disabled={isSubmitting}
                                         className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 transition-all duration-300 appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
-                                        required
+                                        
                                     >
                                         <option value="confirmed">Confirmed</option>
                                         <option value="cancelled">Cancelled</option>

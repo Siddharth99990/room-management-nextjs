@@ -87,10 +87,12 @@ const BookingsPage: React.FC = () => {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                    {user?.role === 'admin' ? 'Manage Bookings' : 'My Bookings'}
+                    Manage 
+                    <br/>
+                    <span className="bg-gradient-to-br from-red-600 to-pink-600 bg-clip-text text-transparent">Bookings</span>
                   </h1>
                   <p className="text-gray-600 dark:text-gray-400">
-                    {user?.role === 'admin' ? "View and manage all bookings on the platform" : "View and manage your own bookings"}
+                    View and manage your own bookings
                   </p>
                 </div>
                 <Link
@@ -117,8 +119,8 @@ const BookingsPage: React.FC = () => {
                 </div>
                 <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center">
-                    <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                      <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+                    <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+                      <CheckCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Confirmed</p>
@@ -145,7 +147,7 @@ const BookingsPage: React.FC = () => {
                 <DataTable 
                   columns={bookingColumns}
                   data={bookings}
-                  filterPlaceholder="Search by any field"
+                  filterPlaceholder="Search by named fields (eg: hostname. etc)"
                   isLoading={isLoading}
                   enableColumnVisibility={false}
                   enableGlobalSearch={true}
