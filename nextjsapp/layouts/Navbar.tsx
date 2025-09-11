@@ -2,11 +2,11 @@
 import React, { useEffect, useState } from "react";
 import Link from 'next/link';
 import { useRouter, usePathname } from "next/navigation";
-import { Home, Users, Building2, Sun, Moon, Menu, X, LogOut, Check, Settings, SearchCheck } from 'lucide-react';
+import { Home, Users, Building2, Sun, Moon, Menu, X, LogOut, Check, Settings, SearchCheck, Edit } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import ChangePasswordModal from "../components/ChangePassword";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface NavBarProps {
     children: React.ReactNode;
@@ -42,9 +42,7 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
         closeMobileMenu();
     };
 
-    const handleChangePasswordClick = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
+    const handleChangePasswordClick = () => {
         setIsChangePasswordOpen(true);
     };
 
@@ -97,32 +95,32 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
                                     <DropdownMenu>
                                         <div className="flex items-center space-x-4 border-l border-gray-200 dark:border-gray-700 pl-4">
                                             <DropdownMenuTrigger asChild>
-                                                <button className="flex items-center space-x-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                    <Settings className="w-5 h-5"/> 
+                                                <button className="flex items-center justify-center w-9 h-9 bg-red-500 dark:bg-red-900 rounded-full text-white font-semibold text-lg hover:scale-[1.04] transition-transform duration-200">
+                                                    {user.name
+                                                    .split(' ')
+                                                    .map(n => n[0])
+                                                    .join('')
+                                                    .toUpperCase()
+                                                    .slice(0, 2)}
                                                 </button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent 
                                                 align="end"
                                                 sideOffset={8}
-                                                className="bg-gradient-to-br from-red-50 to-pink-50 rounded backdrop-blur-lg shadow-lg transition-all duration-200 ease-out transform scale-95 opacity-0 data-[state=open]:scale-100 data-[state=open]:opacity-100">
-                                                <DropdownMenuItem>
-                                                    <button
-                                                    type="button"
-                                                    onClick={handleChangePasswordClick}
-                                                    className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-all duration-200"
+                                                className="bg-white dark:bg-gray-800 dark:border-2 dark:border-red-700 border-2 border-red-300 rounded-md backdrop-blur-lg shadow-lg w-56 p-2 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95">
+                                                <DropdownMenuItem
+                                                    onSelect={handleChangePasswordClick}
+                                                    className="flex items-center w-full text-left space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer focus:bg-red-50 dark:focus:bg-gray-700 focus:text-red-600 dark:focus:text-red-400 outline-none"
                                                 >
-                                                    <Settings className="h-4 w-4" />
+                                                    <Edit className="w-4 h-4"/>
                                                     <span>Change Password</span>
-                                                </button>
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem>
-                                                    <button
-                                                    onClick={handleLogout}
-                                                    className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-all duration-200"
+                                                <DropdownMenuItem
+                                                    onSelect={handleLogout}
+                                                    className="flex items-center w-full text-left space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer focus:bg-red-50 dark:focus:bg-gray-700 focus:text-red-600 dark:focus:text-red-400 outline-none"
                                                 >
                                                     <LogOut className="h-4 w-4" />
                                                     <span>Logout</span>
-                                                </button>
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </div>
@@ -236,3 +234,4 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
 };
 
 export default NavBarLayout;
+

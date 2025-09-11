@@ -71,18 +71,10 @@ const EmployeeCard = ({ employee }: { employee: User }) => {
       {/* Employee Info */}
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex items-center space-x-2">
-          <p className="font-semibold text-gray-900 dark:text-white truncate">
-            {employee.name}
+          <p className="font-semibold text-gray-900 dark:text-white truncate text-md">
+            {employee.name.charAt(0).toUpperCase()+employee.name.slice(1)}
           </p>
-          <RoleBadge role={employee.role} />
         </div>
-        
-        {employee.email && (
-          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-            <Mail className="h-3 w-3 mr-1.5 flex-shrink-0" />
-            <span className="truncate">{employee.email}</span>
-          </div>
-        )}
       </div>
     </div>
   );
