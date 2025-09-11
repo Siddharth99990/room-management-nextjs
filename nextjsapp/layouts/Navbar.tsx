@@ -6,6 +6,7 @@ import { Home, Users, Building2, Sun, Moon, Menu, X, LogOut, Check, Settings, Se
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import ChangePasswordModal from "../components/ChangePassword";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 
 interface NavBarProps {
     children: React.ReactNode;
@@ -93,23 +94,39 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
                                 ))}
 
                                 {isAuthenticated && user && (
-                                    <div className="flex items-center space-x-4 border-l border-gray-200 dark:border-gray-700 pl-4">
-                                        <button
-                                            type="button"
-                                            onClick={handleChangePasswordClick}
-                                            className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-all duration-200"
-                                        >
-                                            <Settings className="h-4 w-4" />
-                                            <span>Change Password</span>
-                                        </button>
-                                        <button
-                                            onClick={handleLogout}
-                                            className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-all duration-200"
-                                        >
-                                            <LogOut className="h-4 w-4" />
-                                            <span>Logout</span>
-                                        </button>
-                                    </div>
+                                    <DropdownMenu>
+                                        <div className="flex items-center space-x-4 border-l border-gray-200 dark:border-gray-700 pl-4">
+                                            <DropdownMenuTrigger asChild>
+                                                <button className="flex items-center space-x-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                    <Settings className="w-5 h-5"/> 
+                                                </button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent 
+                                                align="end"
+                                                sideOffset={8}
+                                                className="bg-gradient-to-br from-red-50 to-pink-50 rounded backdrop-blur-lg shadow-lg transition-all duration-200 ease-out transform scale-95 opacity-0 data-[state=open]:scale-100 data-[state=open]:opacity-100">
+                                                <DropdownMenuItem>
+                                                    <button
+                                                    type="button"
+                                                    onClick={handleChangePasswordClick}
+                                                    className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-all duration-200"
+                                                >
+                                                    <Settings className="h-4 w-4" />
+                                                    <span>Change Password</span>
+                                                </button>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                    <button
+                                                    onClick={handleLogout}
+                                                    className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-all duration-200"
+                                                >
+                                                    <LogOut className="h-4 w-4" />
+                                                    <span>Logout</span>
+                                                </button>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </div>
+                                    </DropdownMenu>
                                 )}
 
                                 <button
