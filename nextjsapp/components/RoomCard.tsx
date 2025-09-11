@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Wifi, Volume2, MapPin, Users, Monitor, Lightbulb, Snowflake, Video,RockingChair,LampDesk,Table, Trash2, Building2 } from 'lucide-react';
 import { roomService, type Room } from "../api/room.service";
-import { useAuth } from "../context/AuthContext";
+import { useAuthStore } from "@/stores/authStore";
 
 interface RoomCardProps{
     room:Room;
@@ -42,7 +42,7 @@ const getEquipmentIcon = (equipment: string) => {
 const RoomCard: React.FC<RoomCardProps> = ({ room,onDelete,onUpdate }) => {
     const [isDeleting,setIsDeleting]=useState(false);
     const [showConfirm,setShowConfirm]=useState(false);
-    const {user}=useAuth();
+    const {user}=useAuthStore();
 
     const handleDelete=async()=>{
         if(!room.roomid){

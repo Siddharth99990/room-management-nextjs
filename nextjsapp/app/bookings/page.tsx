@@ -3,16 +3,17 @@ import React, { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Calendar, CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
-import { useAuth } from "../../context/AuthContext";
 import { bookingService } from "../../api/booking.service";
 import UpdateBookingModal from "../../components/UpdateBooking";
 import ProtectedRoute from "@/context/ProtectedRoute";
 import { DataTable } from "@/components/DataTable";
 import { getBookingColumns } from "@/components/columns/BookingColumns";
+import { useAuthStore } from "@/stores/authStore";
+import ChangePasswordModal from "@/components/ChangePassword";
 
 const BookingsPage: React.FC = () => {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user } = useAuthStore();
   
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [editBookingId, setEditBookingId] = useState<number | null>(null);

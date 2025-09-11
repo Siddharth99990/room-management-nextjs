@@ -2,8 +2,8 @@
 import React, { useState } from "react";
 import { Calendar, Building, Users, User, Clock, MapPin, Edit, X } from "lucide-react";
 import { bookingService } from "../api/booking.service";
-import { useAuth } from "../context/AuthContext";
 import { type Booking } from "../api/booking.service";
+import { useAuthStore } from "@/stores/authStore";
 
 interface BookingCardProps {
     booking: Booking;
@@ -20,7 +20,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
     onUpdate,
     showActions,
 }) => {
-    const { user } = useAuth();
+    const { user } = useAuthStore();
     const [isDeleting, setIsDeleting] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
 

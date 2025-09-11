@@ -2,7 +2,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Clock, Users, Building2, Search, Filter, X, Check, ChevronDown, MapPin } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from "../../context/AuthContext";
 import { roomService, type Room } from "../../api/room.service";
 import { bookingService, type CreateBookingRequest } from "../../api/booking.service";
 import { userService } from "../../api/user.service";
@@ -11,6 +10,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { bookingSchema, type BookingFormData } from '../../validator/bookingvalidator';
 import toast from "react-hot-toast";
+import { useAuthStore } from "@/stores/authStore";
 
 interface AttendeeData {
     userid: number;
@@ -24,7 +24,7 @@ interface AttendeeOption {
 }
 
 const BookRoomPage: React.FC = () => {
-    const { user } = useAuth();
+    const { user } = useAuthStore();
     const queryClient = useQueryClient();
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [searchTerm, setSearchTerm] = useState("");

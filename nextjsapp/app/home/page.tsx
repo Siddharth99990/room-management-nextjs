@@ -1,7 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '../../context/AuthContext';
 import { Users, Building2, Calendar, Plus, MapPin, CalendarX, Search } from 'lucide-react';
 import Link from 'next/link';
 import SmoothCarousel from '../../components/Carousel';
@@ -12,9 +11,10 @@ import { userService } from '../../api/user.service';
 import { roomService } from '../../api/room.service';
 import { bookingService, type Booking } from '../../api/booking.service';
 import ProtectedRoute from '@/context/ProtectedRoute';
+import { useAuthStore } from '@/stores/authStore';
 
 const HomePage = () => {
-    const { user } = useAuth();
+    const { user } = useAuthStore();
     const [currentTime, setCurrentTime] = useState(new Date());
     const [bookingIndex, setBookingIndex] = useState(0);
     const [roomIndex, setRoomIndex] = useState(0);

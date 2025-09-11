@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Mail, Shield, User2, Trash2 } from "lucide-react";
 import { type User, userService } from "../api/user.service";
-import { useAuth } from "../context/AuthContext";
+import { useAuthStore } from "@/stores/authStore";
 
 interface EmployeeCardProps {
   employee: User;
@@ -13,7 +13,7 @@ interface EmployeeCardProps {
 const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onDelete,onUpdate }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const {user}=useAuth();
+  const {user}=useAuthStore();
   const isSelf=user?.userid===employee.userid;
 
   const handleDelete = async () => {

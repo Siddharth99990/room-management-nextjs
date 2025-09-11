@@ -4,21 +4,22 @@ import Link from 'next/link';
 import { useRouter, usePathname } from "next/navigation";
 import { Home, Users, Building2, Sun, Moon, Menu, X, LogOut, Check, Settings, SearchCheck, Edit } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
-import { useAuth } from '../context/AuthContext';
 import ChangePasswordModal from "../components/ChangePassword";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useAuthStore } from "@/stores/authStore";
+import { useModalStore } from "@/stores/modalStore";
 
 interface NavBarProps {
     children: React.ReactNode;
 }
 
 const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
+    const { isChangePasswordOpen, openChangePassword, closeChangePassword } = useModalStore();
     const pathname = usePathname();
     const router = useRouter();
     const { theme, toggleTheme } = useTheme();
-    const { user, logout, isAuthenticated } = useAuth();
+    const { user, logout, isAuthenticated } = useAuthStore();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
     const hideNavbarPaths = ['/login'];
     const shouldHideNavbar = hideNavbarPaths.includes(pathname);
@@ -43,14 +44,8 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
     };
 
     const handleChangePasswordClick = () => {
-        setIsChangePasswordOpen(true);
+        openChangePassword();
     };
-
-    useEffect(() => {
-        if (user && user?.isTemporaryPassword) {
-            setIsChangePasswordOpen(true);
-        }
-    }, [user?.isTemporaryPassword]);
 
     const navLinks = isAuthenticated ? [
         { path: '/home', label: 'Home', icon: Home },
@@ -125,12 +120,6 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
                                     </Link>
                                 ))}
 
-                                {isAuthenticated && user && (
-                                    <div className="flex items-center space-x-4 border-l border-gray-200 dark:border-gray-700 pl-4">
-                                        {userMenu}
-                                    </div>
-                                )}
-
                                 <button
                                     type="button"
                                     onClick={toggleTheme}
@@ -143,6 +132,12 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
                                         <Sun className="h-5 w-5" />
                                     )}
                                 </button>
+
+                                {isAuthenticated && user && (
+                                    <div className="flex items-center space-x-4 border-l border-gray-200 dark:border-gray-700 pl-4">
+                                        {userMenu}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="md:hidden flex items-center space-x-2">
@@ -206,7 +201,7 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
 
             <ChangePasswordModal
                 isOpen={isChangePasswordOpen}
-                onClose={() => setIsChangePasswordOpen(false)}
+                onClose={() => closeChangePassword()}
             />
 
             <main className="transition-colors duration-300">

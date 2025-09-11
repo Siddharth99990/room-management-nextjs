@@ -10,15 +10,16 @@ import {
   Calendar,
   Clock,
   User,
-  Building2
+  Building2,
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { bookingService } from "@/api/booking.service";
 import toast from "react-hot-toast";
-import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import React from "react";
+import { useAuthStore } from "@/stores/authStore";
 
 // Status Badge Component
 const StatusBadge = ({ status }: { status: string }) => {
@@ -66,7 +67,7 @@ export const getBookingColumns = (
 ): ColumnDef<Booking>[] => {
 
   const ActionButtons = ({ row }: { row: any }) => {
-    const { user } = useAuth();
+    const { user } = useAuthStore();
     const queryClient = useQueryClient();
     const booking = row.original as Booking;
     const [confirming, setConfirming] = React.useState(false);
@@ -139,7 +140,7 @@ export const getBookingColumns = (
             disabled={cancelMutation.isPending}
             className="h-8 px-3 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900 dark:hover:text-red-300"
           >
-            <Trash2 className="h-3 w-3 mr-1" />
+            <X className="h-3 w-3 mr-1" />
             Cancel
           </Button>
         ) : null}

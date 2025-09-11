@@ -1,7 +1,8 @@
 'use client'
 import React, { useEffect, useState } from "react";
 import { Lock, Mail, X, EyeOff, Eye, Check } from 'lucide-react';
-import { useAuth } from "../context/AuthContext";
+import { useAuthStore } from "@/stores/authStore";
+
 
 interface ChangePasswordForm {
     email: string;
@@ -15,7 +16,7 @@ interface ChangePasswordModalProps {
 }
 
 const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClose }) => {
-    const { user, clearError, error: authError, changePassword,hasTemporaryPassword } = useAuth();
+    const { user, clearError, error: authError, changePassword,hasTemporaryPassword } = useAuthStore();
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);

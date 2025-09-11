@@ -4,15 +4,15 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { roomService, type Room } from "../../api/room.service";
 import { Building2, Cog, Plus, Users, MapPin, Wifi } from "lucide-react";
 import Link from "next/link";
-import { useAuth } from "../../context/AuthContext";
 import UpdateRoomModal from '../../components/UpdateRoom';
 import ProtectedRoute from "@/context/ProtectedRoute";
 import { DataTable } from "@/components/DataTable";
 import { getRoomColumns } from "@/components/columns/RoomColumns";
+import { useAuthStore } from "@/stores/authStore";
 
 const RoomsPage: React.FC = () => {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user } = useAuthStore();
   
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [editRoomId, setEditRoomId] = useState<number | null>(null);

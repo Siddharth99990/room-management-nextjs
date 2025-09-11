@@ -16,7 +16,8 @@ import { userService } from "@/api/user.service";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import React from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStore } from "@/stores/authStore";
+
 
 // Role Badge Component
 const RoleBadge = ({ role }: { role: string }) => {
@@ -88,7 +89,7 @@ export const getEmployeeColumns = (
   const ActionButtons = ({ row }: { row: any }) => {
     const queryClient = useQueryClient();
     const user = row.original as User;
-    const { user: currentUser } = useAuth();
+    const { user: currentUser } = useAuthStore();
 
 
     const deleteMutation = useMutation({

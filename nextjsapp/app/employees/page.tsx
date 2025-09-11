@@ -8,10 +8,10 @@ import Link from 'next/link';
 import ProtectedRoute from '@/context/ProtectedRoute';
 import { getEmployeeColumns } from '@/components/columns/EmployeeColumns';
 import { DataTable } from '@/components/DataTable';
-import { useAuth } from '@/context/AuthContext';
+import { useAuthStore } from '@/stores/authStore';
 
 const EmployeesPage: React.FC = () => {
-  const {user}=useAuth();
+  const {user}=useAuthStore();
   const queryClient = useQueryClient();
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [editUserId, setEditUserId] = useState<number | null>(null);
