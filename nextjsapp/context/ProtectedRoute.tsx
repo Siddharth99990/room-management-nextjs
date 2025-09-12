@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { Button } from "@/components/ui/button";
 import {Lock} from 'lucide-react';
-import { useModalStore } from "@/stores/modalStore";
+import { usePasswordModalStore } from "@/stores/modalStore";
 
 
 // The interface remains clean, without any extra props
@@ -15,7 +15,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
-    const { isChangePasswordOpen, openChangePassword, closeChangePassword } = useModalStore();
+    const { isChangePasswordOpen, openChangePassword, closeChangePassword } = usePasswordModalStore();
     const { isAuthenticated, isLoading, user } = useAuthStore();
     const router = useRouter();
     const pathname = usePathname();

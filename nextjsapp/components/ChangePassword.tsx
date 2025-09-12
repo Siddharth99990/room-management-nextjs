@@ -137,7 +137,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient dark:from-gray-800 dark:to-red-800 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 w-full max-w-md mx-auto">
+            <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient dark:from-gray-800 dark:via-gray-800 dark:to-red-800 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 w-full max-w-md mx-auto">
                 <div className="p-6 sm:p-8 border-b border-gray-200/50 dark:border-gray-700/50">
                     <button 
                         onClick={handleClose}

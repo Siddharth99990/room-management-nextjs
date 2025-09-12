@@ -20,6 +20,7 @@ import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import React from "react";
 import { useAuthStore } from "@/stores/authStore";
+import { useBookingStore } from "@/stores/bookingStore";
 
 // Status Badge Component
 const StatusBadge = ({ status }: { status: string }) => {
@@ -68,20 +69,18 @@ export const getBookingColumns = (
 
   const ActionButtons = ({ row }: { row: any }) => {
     const { user } = useAuthStore();
-    const queryClient = useQueryClient();
+    const {cancelBooking}=useBookingStore();
     const booking = row.original as Booking;
     const [confirming, setConfirming] = React.useState(false);
+    const [isCancelling,setIsCancelling]=React.useState(false);
 
-    const cancelMutation = useMutation({
-      mutationFn: () => bookingService.cancelBooking(booking.bookingid, user!.userid!),
-      onSuccess: () => {
-        toast.success(`Booking "${booking.title}" cancelled.`);
-        queryClient.invalidateQueries({ queryKey: ['bookings'] });
-      },
-      onError: (err: any) => {
-        toast.error(`Failed to cancel booking: ${err.message}`);
-      }
-    });
+    const handleCancel=async()=>{
+      if(!user)return;
+      setIsCancelling(true);
+      await cancelBooking(booking.bookingid,user.userid);
+      setIsCancelling(false);
+      setConfirming(false);
+    }
 
     const canModify = user?.userid === booking.createdBy.userid;
     const isPastBooking = new Date(booking.endtime) < new Date();
@@ -94,11 +93,11 @@ export const getBookingColumns = (
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => cancelMutation.mutate()}
-                disabled={cancelMutation.isPending}
+                onClick={handleCancel}
+                disabled={isCancelling}
                 className="h-8 px-3 text-red-900 bg-red-400 dark:text-red-300 dark:bg-red-500 hover:bg-red-600"
               >
-                {cancelMutation.isPending ? "Cancelling..." : "Confirm"}
+                {isCancelling ? "Cancelling..." : "Confirm"}
               </Button>
               <Button
                 variant="outline"
@@ -137,7 +136,6 @@ export const getBookingColumns = (
             variant="outline"
             size="sm"
             onClick={() => setConfirming(true)}
-            disabled={cancelMutation.isPending}
             className="h-8 px-3 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900 dark:hover:text-red-300"
           >
             <X className="h-3 w-3 mr-1" />

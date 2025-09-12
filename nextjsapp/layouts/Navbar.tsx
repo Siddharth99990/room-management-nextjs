@@ -7,14 +7,14 @@ import { useTheme } from '../context/ThemeContext';
 import ChangePasswordModal from "../components/ChangePassword";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuthStore } from "@/stores/authStore";
-import { useModalStore } from "@/stores/modalStore";
+import { usePasswordModalStore } from "@/stores/modalStore";
 
 interface NavBarProps {
     children: React.ReactNode;
 }
 
 const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
-    const { isChangePasswordOpen, openChangePassword, closeChangePassword } = useModalStore();
+    const { isChangePasswordOpen, openChangePassword, closeChangePassword } = usePasswordModalStore();
     const pathname = usePathname();
     const router = useRouter();
     const { theme, toggleTheme } = useTheme();

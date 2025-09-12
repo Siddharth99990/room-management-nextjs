@@ -1,34 +1,38 @@
 'use client';
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Calendar, CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
-import { bookingService } from "../../api/booking.service";
 import UpdateBookingModal from "../../components/UpdateBooking";
 import ProtectedRoute from "@/context/ProtectedRoute";
 import { DataTable } from "@/components/DataTable";
 import { getBookingColumns } from "@/components/columns/BookingColumns";
 import { useAuthStore } from "@/stores/authStore";
-import ChangePasswordModal from "@/components/ChangePassword";
+import { useBookingStore } from "@/stores/bookingStore";
 
 const BookingsPage: React.FC = () => {
   const queryClient = useQueryClient();
+  const {bookings,isLoadingBookings,errorBookings,fetchBookings}=useBookingStore();
   const { user } = useAuthStore();
   
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [editBookingId, setEditBookingId] = useState<number | null>(null);
 
-  const { data: bookings = [], isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['bookings'],
-    queryFn: async () => {
-      const response = await bookingService.getAllBookings();
-      return response.bookings.map(booking => ({
-        ...booking,
-        starttime: new Date(booking.starttime),
-        endtime: new Date(booking.endtime)
-      }));
-    }
-  });
+  useEffect(()=>{
+    fetchBookings();
+  },[fetchBookings]);
+
+  // const { data: bookings = [], isLoading, isError, error, refetch } = useQuery({
+  //   queryKey: ['bookings'],
+  //   queryFn: async () => {
+  //     const response = await bookingService.getAllBookings();
+  //     return response.bookings.map(booking => ({
+  //       ...booking,
+  //       starttime: new Date(booking.starttime),
+  //       endtime: new Date(booking.endtime)
+  //     }));
+  //   }
+  // });
 
   const handleBookingUpdate = (bookingid: number) => {
     setEditBookingId(bookingid);
@@ -36,7 +40,7 @@ const BookingsPage: React.FC = () => {
   };
 
   const handleUpdateSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['bookings'] });
+    // queryClient.invalidateQueries({ queryKey: ['bookings'] });
     setTimeout(() => {
       handleCloseUpdate();
     }, 1000);
@@ -62,11 +66,11 @@ const BookingsPage: React.FC = () => {
 
   const bookingColumns = getBookingColumns(handleBookingUpdate);
   
-  if (isError) {
+  if (errorBookings && !isLoadingBookings) {
     return (
       <div className="min-h-screen flex justify-center items-center">
         <div className="text-center">
-          <p className="text-red-500 text-lg mb-4">{error.message}</p>
+          <p className="text-red-500 text-lg mb-4">{errorBookings}</p>
           <Link
             href='/bookroom'
             className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold shadow-md hover:from-red-700 hover:to-pink-700 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]">
@@ -149,7 +153,7 @@ const BookingsPage: React.FC = () => {
                   columns={bookingColumns}
                   data={bookings}
                   filterPlaceholder="Search by named fields (eg: hostname. etc)"
-                  isLoading={isLoading}
+                  isLoading={isLoadingBookings}
                   enableColumnVisibility={false}
                   enableGlobalSearch={true}
                 />
