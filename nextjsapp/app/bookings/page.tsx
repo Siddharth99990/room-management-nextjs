@@ -10,6 +10,8 @@ import { getBookingColumns } from "@/components/columns/BookingColumns";
 import { useAuthStore } from "@/stores/authStore";
 import { useBookingStore } from "@/stores/bookingStore";
 import { bookingService } from "@/api/booking.service";
+import ViewBookingModal from "@/components/ViewBookingModal"; 
+
 
 const BookingsPage: React.FC = () => {
     const queryClient = useQueryClient();
@@ -80,6 +82,7 @@ const BookingsPage: React.FC = () => {
     return (
         <ProtectedRoute>
             <>
+                <ViewBookingModal />
                 <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-900 transition-all duration-500">
                     <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
 

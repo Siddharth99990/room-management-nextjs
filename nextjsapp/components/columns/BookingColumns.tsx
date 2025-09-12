@@ -11,7 +11,8 @@ import {
   Clock,
   User,
   Building2,
-  X
+  X,
+  Eye // Import the Eye icon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,6 +22,9 @@ import { cn } from "@/lib/utils";
 import React from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { useBookingStore } from "@/stores/bookingStore";
+import { useViewBookingModalStore } from "@/stores/modalStore"; // Import the new store
+
+// ... (StatusBadge and BookingDetails components remain the same)
 
 // Status Badge Component
 const StatusBadge = ({ status }: { status: string }) => {
@@ -63,6 +67,7 @@ const BookingDetails = ({ booking }: { booking: Booking }) => (
   </div>
 );
 
+
 export const getBookingColumns = (
   onEdit: (bookingid: number) => void,
 ): ColumnDef<Booking>[] => {
@@ -70,9 +75,11 @@ export const getBookingColumns = (
   const ActionButtons = ({ row }: { row: any }) => {
     const { user } = useAuthStore();
     const {cancelBooking}=useBookingStore();
+    const { openViewBooking } = useViewBookingModalStore(); // Use the new store
     const booking = row.original as Booking;
     const [confirming, setConfirming] = React.useState(false);
     const [isCancelling,setIsCancelling]=React.useState(false);
+
 
     const handleCancel=async()=>{
       if(!user)return;
@@ -115,6 +122,15 @@ export const getBookingColumns = (
 
     return (
       <div className="flex items-center gap-2">
+         <Button
+          variant="outline"
+          size="sm"
+          onClick={() => openViewBooking(booking.bookingid)}
+          className="h-8 px-3 text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-900 dark:hover:text-blue-300"
+        >
+          <Eye className="h-3 w-3 mr-1" />
+          View
+        </Button>
         {canModify && !isPastBooking ? (
           <Button
             variant="outline"
@@ -149,7 +165,7 @@ export const getBookingColumns = (
       </div>
     );
   };
-
+// ... (the rest of the file remains the same)
   return [
     {
       accessorKey: "title",
