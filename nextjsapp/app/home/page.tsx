@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Users, Building2, Calendar, Plus, MapPin, CalendarX, Search } from 'lucide-react';
 import Link from 'next/link';
 import SmoothCarousel from '../../components/Carousel';
@@ -12,13 +12,19 @@ import { roomService } from '../../api/room.service';
 import { bookingService, type Booking } from '../../api/booking.service';
 import ProtectedRoute from '@/context/ProtectedRoute';
 import { useAuthStore } from '@/stores/authStore';
+import { useBookingStore } from '@/stores/bookingStore';
+import UpdateBookingModal from '@/components/UpdateBooking';
 
 const HomePage = () => {
     const { user } = useAuthStore();
+    const queryClient = useQueryClient();
+    const { cancelBooking } = useBookingStore();
     const [currentTime, setCurrentTime] = useState(new Date());
     const [bookingIndex, setBookingIndex] = useState(0);
     const [roomIndex, setRoomIndex] = useState(0);
     const [showPreviousBookings, setShowPreviousBookings] = useState(false);
+    const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+    const [editBookingId, setEditBookingId] = useState<number | null>(null);
 
     const { data: userBookings, isLoading: isLoadingBookings } = useQuery({
         queryKey: ['userBookings', user?.userid],
@@ -26,7 +32,6 @@ const HomePage = () => {
             if (!user) return [];
 
             const createdBookingsResponse = await bookingService.getAllBookings({ createdBy: user.userid, limit: 100 });
-
             const allBookingsResponse = await bookingService.getAllBookings({ limit: 100 });
 
             let allUserBookings: Booking[] = [];
@@ -48,7 +53,7 @@ const HomePage = () => {
                 .map(b => ({ ...b, starttime: new Date(b.starttime), endtime: new Date(b.endtime) }))
                 .sort((a, b) => a.starttime.getTime() - b.starttime.getTime());
         },
-        enabled: !!user 
+        enabled: !!user
     });
 
     const { data: roomsData, isLoading: isLoadingRooms } = useQuery({
@@ -66,6 +71,13 @@ const HomePage = () => {
             return users.length;
         },
         enabled: user?.role === 'admin'
+    });
+    
+    const cancelBookingMutation = useMutation({
+        mutationFn: ({ bookingid, userid }: { bookingid: number, userid: number }) => cancelBooking(bookingid, userid),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['userBookings', user?.userid] });
+        },
     });
 
     useEffect(() => {
@@ -89,6 +101,18 @@ const HomePage = () => {
 
             return dateCondition;
         });
+    };
+
+    const handleUpdateSuccess = () => {
+        queryClient.invalidateQueries({ queryKey: ['userBookings', user?.userid] });
+        setTimeout(() => {
+            handleCloseUpdate();
+        }, 1000);
+    };
+
+    const handleCloseUpdate = () => {
+        setIsUpdateOpen(false);
+        setEditBookingId(null);
     };
 
     const displayBookings = getCurrentUserBookings();
@@ -127,6 +151,14 @@ const HomePage = () => {
 
     return (
         <ProtectedRoute>
+             {isUpdateOpen && editBookingId && (
+                    <UpdateBookingModal
+                        isOpen={isUpdateOpen}
+                        onClose={handleCloseUpdate}
+                        bookingid={editBookingId}
+                        onUpdateSuccess={handleUpdateSuccess}
+                    />
+                )}
             <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-red-900 transition-all duration-500">
                 <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
                     <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">

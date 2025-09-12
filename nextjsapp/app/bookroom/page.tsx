@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { bookingSchema, type BookingFormData } from '../../validator/bookingvalidator';
 import toast from "react-hot-toast";
 import { useAuthStore } from "@/stores/authStore";
-import { useEmployeeStore } from "@/stores/employeeStore";
+import { useBookingStore } from "@/stores/bookingStore";
 
 interface AttendeeData {
     userid: number;
@@ -27,6 +27,7 @@ interface AttendeeOption {
 const BookRoomPage: React.FC = () => {
     const { user } = useAuthStore();
     const queryClient = useQueryClient();
+    const { addBooking } = useBookingStore();
     
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
@@ -124,27 +125,15 @@ const BookRoomPage: React.FC = () => {
     });
 
     const bookRoomMutation = useMutation({
-        mutationFn: async (bookingData: CreateBookingRequest) => {
-            return await bookingService.bookRoom(bookingData);
-        },
-        onSuccess: (response) => {
-            if (response.success) {
-                toast.success("Room booked successfully!");
-                
-                // Reset form
-                resetFormAndCloseModal();
-                
-                // Invalidate queries to refresh data
-                queryClient.invalidateQueries({ queryKey: ['bookings'] });
-                queryClient.invalidateQueries({ queryKey: ['userBookings'] });
-                queryClient.invalidateQueries({ queryKey: ['availableRooms'] });
-            } else {
-                toast.error(response.message || "Failed to book room");
-            }
-        },
-        onError: (err: any) => {
-            console.error("Error booking room:", err);
-            toast.error(err.message || "Network error. Please check your connection and try again.");
+        mutationFn: addBooking,
+        onSuccess: () => {
+            // Invalidate queries to refresh data everywhere
+            queryClient.invalidateQueries({ queryKey: ['bookings'] });
+            queryClient.invalidateQueries({ queryKey: ['userBookings', user?.userid] });
+            queryClient.invalidateQueries({ queryKey: ['availableRooms'] });
+            
+            // Reset form
+            resetFormAndCloseModal();
         }
     });
 
@@ -650,24 +639,17 @@ const BookRoomPage: React.FC = () => {
                                     </div>
 
                                     {formAttendees.length > 0 && (
-                                        <div className="mt-3 space-y-2">
+                                        <div className="mt-4 flex flex-wrap gap-2 p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700/50">
                                             {formAttendees.map((attendee) => (
                                                 <div
                                                     key={attendee.userid}
-                                                    className="flex items-center justify-between bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg"
+                                                    className="flex items-center bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300 px-3 py-1 rounded-full text-sm font-medium"
                                                 >
-                                                    <div>
-                                                        <span className="font-medium text-gray-800 dark:text-gray-200">
-                                                            {attendee.name}
-                                                        </span>
-                                                        <span className="ml-2 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300 px-2 py-1 rounded-full">
-                                                            Invited
-                                                        </span>
-                                                    </div>
+                                                    <span>{attendee.name}</span>
                                                     <button
                                                         type="button"
                                                         onClick={() => removeAttendee(attendee.userid)}
-                                                        className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
+                                                        className="ml-2 text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors"
                                                     >
                                                         <X className="w-4 h-4" />
                                                     </button>

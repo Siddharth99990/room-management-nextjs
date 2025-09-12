@@ -31,7 +31,7 @@ const RegisterRoomPage = () => {
     const [equipmentSearch, setEquipmentSearch] = useState("");
     const [showEquipmentDropdown, setShowEquipmentDropdown] = useState(false);
 
-    const addEquipmentMutation = useMutation({
+    const addRoomMutation = useMutation({
         mutationFn: (roomData: Omit<Room, 'roomid'>) => addRoom(roomData),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['rooms'] });
@@ -80,7 +80,7 @@ const RegisterRoomPage = () => {
             toast.error("Please fill all required fields correctly.");
             return;
         }
-        addEquipmentMutation.mutate({ ...formData, capacity: capacityNumber });
+        addRoomMutation.mutate({ ...formData, capacity: capacityNumber });
     };
 
     const features = [
@@ -135,19 +135,19 @@ const RegisterRoomPage = () => {
                                 <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                                     <div className="relative">
                                         <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                        <input type="text" name="roomname" placeholder="Room Name" value={formData.roomname} onChange={handleInputChange} disabled={addEquipmentMutation.isPending} className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400" required />
+                                        <input type="text" name="roomname" placeholder="Room Name" value={formData.roomname} onChange={handleInputChange} disabled={addRoomMutation.isPending} className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400" required />
                                     </div>
                                     <div className="relative">
                                         <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                        <input type="text" name="roomlocation" placeholder="Room Location" value={formData.roomlocation} onChange={handleInputChange} disabled={addEquipmentMutation.isPending} className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400" required />
+                                        <input type="text" name="roomlocation" placeholder="Room Location" value={formData.roomlocation} onChange={handleInputChange} disabled={addRoomMutation.isPending} className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400" required />
                                     </div>
                                     <div className="relative">
                                         <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                        <input type="text" name="capacity" placeholder="Room Capacity" value={formData.capacity} onChange={handleInputChange} disabled={addEquipmentMutation.isPending} className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400" required />
+                                        <input type="text" name="capacity" placeholder="Room Capacity" value={formData.capacity} onChange={handleInputChange} disabled={addRoomMutation.isPending} className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400" required />
                                     </div>
                                     <div className="relative">
                                         <Monitor className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                        <input type="text" placeholder="Search and add equipment..." value={equipmentSearch} onChange={(e) => { setEquipmentSearch(e.target.value); setShowEquipmentDropdown(true); }} onFocus={() => setShowEquipmentDropdown(true)} disabled={addEquipmentMutation.isPending} className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400" />
+                                        <input type="text" placeholder="Search and add equipment..." value={equipmentSearch} onChange={(e) => { setEquipmentSearch(e.target.value); setShowEquipmentDropdown(true); }} onFocus={() => setShowEquipmentDropdown(true)} disabled={addRoomMutation.isPending} className="w-full pl-11 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400" />
                                         {showEquipmentDropdown && equipmentSearch && (
                                             <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-40 overflow-y-auto">
                                                 {filteredEquipment.length > 0 ? (
@@ -169,14 +169,14 @@ const RegisterRoomPage = () => {
                                                 {formData.equipment.map((equipment) => (
                                                     <div key={equipment} className="flex items-center bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300 px-3 py-1 rounded-full text-sm">
                                                         {equipment}
-                                                        <button type="button" onClick={() => removeEquipment(equipment)} disabled={addEquipmentMutation.isPending} className="ml-2 text-red-500 hover:text-red-700 dark:hover:text-red-400">✕</button>
+                                                        <button type="button" onClick={() => removeEquipment(equipment)} disabled={addRoomMutation.isPending} className="ml-2 text-red-500 hover:text-red-700 dark:hover:text-red-400">✕</button>
                                                     </div>
                                                 ))}
                                             </div>
                                         </div>
                                     )}
-                                    <button type="submit" disabled={addEquipmentMutation.isPending} className="w-full bg-gradient-to-r from-red-600 to-pink-600 text-white py-2.5 sm:py-3 px-6 rounded-xl font-semibold hover:from-red-700 hover:to-pink-700 focus:ring-4 focus:ring-red-200 dark:focus:ring-red-800 transition-all duration-300">
-                                        {addEquipmentMutation.isPending ? 'Registering...' : 'Register Room'}
+                                    <button type="submit" disabled={addRoomMutation.isPending} className="w-full bg-gradient-to-r from-red-600 to-pink-600 text-white py-2.5 sm:py-3 px-6 rounded-xl font-semibold hover:from-red-700 hover:to-pink-700 focus:ring-4 focus:ring-red-200 dark:focus:ring-red-800 transition-all duration-300">
+                                        {addRoomMutation.isPending ? 'Registering...' : 'Register Room'}
                                     </button>
                                 </form>
                             </div>
