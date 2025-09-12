@@ -1,41 +1,25 @@
 'use client'
-import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { roomService, type Room } from "../../api/room.service";
-import { Building2, Cog, Plus, Users, MapPin, Wifi } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Plus, Building2 } from "lucide-react";
 import Link from "next/link";
 import UpdateRoomModal from '../../components/UpdateRoom';
 import ProtectedRoute from "@/context/ProtectedRoute";
 import { DataTable } from "@/components/DataTable";
 import { getRoomColumns } from "@/components/columns/RoomColumns";
 import { useAuthStore } from "@/stores/authStore";
+import { useRoomStore } from "@/stores/roomStore";
+import { type Room } from "@/api/room.service";
 
 const RoomsPage: React.FC = () => {
-  const queryClient = useQueryClient();
   const { user } = useAuthStore();
+  const { rooms, isLoadingRooms, errorRooms, getRooms, deleteRoom } = useRoomStore();
   
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [editRoomId, setEditRoomId] = useState<number | null>(null);
 
-  // Fetch rooms using useQuery
-  const { data: rooms = [], isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['rooms'],
-    queryFn: async () => {
-      const response = await roomService.getAllRooms();
-      return response.rooms;
-    }
-  });
-
-  // Handle room deletion with useMutation
-  const deleteMutation = useMutation({
-    mutationFn: (roomId: number) => roomService.deleteRoom(roomId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['rooms'] });
-    },
-    onError: (err) => {
-      console.error("Failed to delete room:", err);
-    }
-  });
+  useEffect(() => {
+    getRooms();
+  }, [getRooms]);
 
   const handleRoomUpdate = (roomid: number) => {
     setEditRoomId(roomid);
@@ -43,7 +27,6 @@ const RoomsPage: React.FC = () => {
   };
 
   const handleUpdateSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['rooms'] });
     setTimeout(() => {
       handleCloseUpdate();
     }, 1000);
@@ -55,7 +38,7 @@ const RoomsPage: React.FC = () => {
   };
 
   const handleRoomDelete = (deletedRoomId: number) => {
-    deleteMutation.mutate(deletedRoomId);
+    deleteRoom(deletedRoomId);
   };
 
   // Stats calculations
@@ -70,11 +53,11 @@ const RoomsPage: React.FC = () => {
 
   const roomColumns = getRoomColumns(handleRoomUpdate, handleRoomDelete, user?.role === 'admin');
 
-  if (isError) {
+  if (errorRooms) {
     return (
       <div className="min-h-screen flex justify-center items-center">
         <div className="text-center">
-          <p className="text-red-500 text-lg mb-4">{error.message}</p>
+          <p className="text-red-500 text-lg mb-4">{errorRooms}</p>
           {user?.role === 'admin' && (
             <Link
               href="/registerroom"
@@ -152,7 +135,7 @@ const RoomsPage: React.FC = () => {
                 columns={roomColumns}
                 data={rooms}
                 filterPlaceholder="Search rooms by name, location..."
-                isLoading={isLoading}
+                isLoading={isLoadingRooms}
                 enableColumnVisibility={false}
                 enableGlobalSearch={true}
                 pageSize={10}

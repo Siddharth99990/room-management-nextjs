@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Lock, Mail, X, EyeOff, Eye, Check } from 'lucide-react';
 import { useAuthStore } from "@/stores/authStore";
+import toast from "react-hot-toast";
 
 
 interface ChangePasswordForm {
@@ -100,6 +101,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
             );
 
             if (result.success) {
+                toast.success("Password changed successfully");
                 console.log('Password changed successfully');
                 setSuccess(true);
                 setPasswordForm(prev => ({
@@ -172,17 +174,6 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
                     </div>
                 )}    
                 </div>
-
-                {success && (
-                        <div className="mb-6 p-4 bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700 rounded-xl">
-                            <div className="flex items-center">
-                                <Check className="w-5 h-5 text-green-600 dark:text-green-300 mr-2" />
-                                <p className="text-green-700 dark:text-green-300 font-medium text-sm">
-                                    Password changed successfully!
-                                </p>
-                            </div>
-                        </div>
-                    )}
 
                     {(error || authError) && (
                         <div className="mb-6 p-4 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-xl">

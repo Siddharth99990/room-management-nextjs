@@ -9,17 +9,18 @@ import ProtectedRoute from '@/context/ProtectedRoute';
 import { getEmployeeColumns } from '@/components/columns/EmployeeColumns';
 import { DataTable } from '@/components/DataTable';
 import { useAuthStore } from '@/stores/authStore';
+import { useEmployeeStore } from '@/stores/employeeStore';
 
 const EmployeesPage: React.FC = () => {
   const {user}=useAuthStore();
-  const queryClient = useQueryClient();
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [editUserId, setEditUserId] = useState<number | null>(null);
+  const {employees,isLoadingEmployees,errorEmployees,getEmployees}=useEmployeeStore();
 
-  const { data: employees = [], isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['employees'],
-    queryFn: userService.getUsers,
-  });
+  // const { data: employees = [], isLoading, isError, error, refetch } = useQuery({
+  //   queryKey: ['employees'],
+  //   queryFn: userService.getUsers,
+  // });
 
   const handleUserUpdate = (userid: number) => {
     setEditUserId(userid);
@@ -27,7 +28,6 @@ const EmployeesPage: React.FC = () => {
   };
 
   const handleUpdateSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['employees'] });
     handleCloseUpdate();
   };
 
@@ -60,10 +60,10 @@ const EmployeesPage: React.FC = () => {
 
   const employeeColumns = getEmployeeColumns(handleUserUpdate, user ? user.userid : null);
 
-  if (isError) {
+  if (errorEmployees) {
     return (
       <div className='min-h-screen flex justify-center items-center bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-900'>
-        <p className='text-red-500'>{error.message}</p>
+        <p className='text-red-500'>{errorEmployees}</p>
       </div>
     );
   }
@@ -144,7 +144,7 @@ const EmployeesPage: React.FC = () => {
                 data={employees}
                 filterColumnId="name"
                 filterPlaceholder="Search employees..."
-                isLoading={isLoading}
+                isLoading={isLoadingEmployees}
                 enableRowSelection={true}
                 enableColumnVisibility={false}
                 enableGlobalSearch={true}

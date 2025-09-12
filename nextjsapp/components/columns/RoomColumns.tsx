@@ -21,11 +21,10 @@ import {
   Volume2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { roomService } from "@/api/room.service";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import React from "react";
+import { useRoomStore } from "@/stores/roomStore";
 
 // Capacity Badge Component
 const CapacityBadge = ({ capacity }: { capacity: number }) => {
@@ -147,20 +146,21 @@ export const getRoomColumns = (
 ): ColumnDef<Room>[] => {
 
   const ActionButtons = ({ row }: { row: any }) => {
-    const queryClient = useQueryClient();
     const room = row.original as Room;
+    const { deleteRoom } = useRoomStore();
     const [confirming, setConfirming] = React.useState(false);
+    const [isDeleting, setIsDeleting] = React.useState(false);
 
-    const deleteMutation = useMutation({
-      mutationFn: () => roomService.deleteRoom(room.roomid!),
-      onSuccess: () => {
-        toast.success(`Room "${room.roomname}" deleted successfully.`);
-        queryClient.invalidateQueries({ queryKey: ['rooms'] });
-      },
-      onError: (err: any) => {
-        toast.error(`Failed to delete room: ${err.message}`);
-      }
-    });
+
+    const handleDelete = async () => {
+        setIsDeleting(true);
+        const success = await deleteRoom(room.roomid!);
+        if (!success) {
+            toast.error(`Failed to delete room: ${room.roomname}`);
+        }
+        setIsDeleting(false);
+        setConfirming(false);
+    }
 
     if (confirming) {
       return (
@@ -170,11 +170,11 @@ export const getRoomColumns = (
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => deleteMutation.mutate()}
-                disabled={deleteMutation.isPending}
+                onClick={handleDelete}
+                disabled={isDeleting}
                 className="h-8 px-3 text-red-900 bg-red-400 dark:text-red-300 dark:bg-red-500 hover:bg-red-600"
               >
-                {deleteMutation.isPending ? "Deleting..." : "Confirm"}
+                {isDeleting ? "Deleting..." : "Confirm"}
               </Button>
               <Button
                 variant="outline"
@@ -212,7 +212,7 @@ export const getRoomColumns = (
           variant="outline"
           size="sm"
           onClick={() => setConfirming(true)}
-          disabled={deleteMutation.isPending}
+          disabled={isDeleting}
           className="h-8 px-3 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900 dark:hover:text-red-300"
         >
           <Trash2 className="h-3 w-3 mr-1" />

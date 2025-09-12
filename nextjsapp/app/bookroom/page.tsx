@@ -11,6 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { bookingSchema, type BookingFormData } from '../../validator/bookingvalidator';
 import toast from "react-hot-toast";
 import { useAuthStore } from "@/stores/authStore";
+import { useEmployeeStore } from "@/stores/employeeStore";
 
 interface AttendeeData {
     userid: number;
@@ -26,6 +27,7 @@ interface AttendeeOption {
 const BookRoomPage: React.FC = () => {
     const { user } = useAuthStore();
     const queryClient = useQueryClient();
+    const {employees,getEmployees,isLoadingEmployees}=useEmployeeStore();
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [capacityFilter, setCapacityFilter] = useState<string>("");
@@ -40,6 +42,10 @@ const BookRoomPage: React.FC = () => {
 
     const attendeeInputRef = useRef<HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(()=>{
+        getEmployees();
+    },[getEmployees]);
 
     const {
         register,

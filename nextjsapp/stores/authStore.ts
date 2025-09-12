@@ -11,7 +11,7 @@ interface AuthState{
     login:(email:string,password:string)=>Promise<{success:boolean;message?:string}>;
     logout:()=>Promise<void>;
     checkAuthStatus:()=>Promise<void>;
-    changePassword:(email:string,newPassword:string,oldPassword:string)=>Promise<{success:boolean;message?:string}>
+    changePassword:(email:string,oldPassword:string,newPassword:string)=>Promise<{success:boolean;message?:string}>
     clearError:()=>void;
 };
 
@@ -70,7 +70,7 @@ export const useAuthStore=create(persist<AuthState>(((set,get)=>({
         }
     },
 
-    changePassword:async(email,newPassword,oldPassword)=>{
+    changePassword:async(email,oldPassword,newPassword)=>{
         try{
             set({isLoading:true,error:null});
             const response=await authService.changePassword({email,oldPassword,newPassword});
