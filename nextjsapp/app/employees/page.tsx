@@ -1,162 +1,167 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import EmployeeCard from '../../components/EmployeeCard';
-import { userService, type User } from '../../api/user.service';
-import { Cog, Plus, User2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { userService } from '../../api/user.service';
+import { Plus, Users, Shield, UserCheck, Calendar, User } from 'lucide-react';
 import UpdateUserModal from '../../components/UpdateEmployee';
 import Link from 'next/link';
 import ProtectedRoute from '@/context/ProtectedRoute';
+import { getEmployeeColumns } from '@/components/columns/EmployeeColumns';
+import { DataTable } from '@/components/DataTable';
+import { useAuthStore } from '@/stores/authStore';
 
 const EmployeesPage: React.FC = () => {
-  const [employees, setEmployees] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [isUpdateOpen,setIsUpdateOpen]=useState(false);
-  const [editUserId,setEditUserId]=useState<number|null>(null);
+  const {user}=useAuthStore();
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+  const [editUserId, setEditUserId] = useState<number | null>(null);
 
-  const features = [
-    {
-      icon: <User2 className='w-6 h-6' />,
-      title: 'Browse Users',
-      description: 'Freely browse through users available on the platform',
-    },
-    {
-      icon: <Cog className='w-6 h-6' />,
-      title: 'Manage Users',
-      description: 'Maintain user records, delete, update or change users as needed',
-    },
-  ];
+  const { data: employees = [], isLoading:isLoadingEmployees, error:errorEmployees} = useQuery({
+    queryKey: ['employees'],
+    queryFn: userService.getUsers,
+  });
 
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const response = await userService.getUsers();
-        setEmployees(response);
-      } catch (err: any) {
-        setError(err.message || 'failed to load employees');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchEmployees();
-  }, []);
-
-  const handleUserUpdate=(userid:number)=>{
+  const handleUserUpdate = (userid: number) => {
     setEditUserId(userid);
     setIsUpdateOpen(true);
-  }
-
-  const handleUpdateSuccess=(updatedUser:User)=>{
-    setEmployees(prevEmployees=>
-      prevEmployees.map(employee=>
-        employee.userid===updatedUser.userid?updatedUser:employee
-      )
-    );
-  }
-
-  const handleCloseUpdate=()=>{
-    setIsUpdateOpen(false);
-    setEditUserId(null);
-  }
-
-  const handleUserDelete = (deletedUserId: number) => {
-    setEmployees(prevEmployees => 
-      prevEmployees.filter(employee => employee.userid !== deletedUserId)
-    );
   };
 
-  if (loading) {
-    return (
-      <div className='min-h-screen flex justify-center items-center'>
-        <div className='text-gray-600 dark:text-gray-400 animate-spin rounded-full'></div>
-      </div>
-    );
-  }
+  const handleUpdateSuccess = () => {
+    handleCloseUpdate();
+  };
 
-  if (error) {
+  const handleCloseUpdate = () => {
+    setIsUpdateOpen(false);
+    setEditUserId(null);
+  };
+
+  // Stats calculations
+  const stats = React.useMemo(() => {
+    const roleCount = employees.reduce((acc, emp) => {
+      acc[emp.role] = (acc[emp.role] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const thisMonth = new Date();
+    thisMonth.setDate(1);
+    const newThisMonth = employees.filter(emp => 
+      emp.createdAt && new Date(emp.createdAt) >= thisMonth
+    ).length;
+
+    return {
+      total: employees.length,
+      admins: roleCount.admin || 0,
+      employees: roleCount.employee || 0,
+      managers: roleCount.manager || 0,
+      newThisMonth
+    };
+  }, [employees]);
+
+  const employeeColumns = getEmployeeColumns(handleUserUpdate, user ? user.userid : null);
+
+  if (errorEmployees) {
     return (
-      <div className='min-h-screen flex justify-center items-center'>
-        <p className='text-red-500'>{error}</p>
+      <div className='min-h-screen flex justify-center items-center bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-900'>
+        <p className='text-red-500'>{(errorEmployees as Error).message}</p>
       </div>
     );
   }
 
   return (
-  <ProtectedRoute requiredRole='admin'>
-  <>
-    <div className='min-h-screen bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-900 transition-all duration-500'>
-      <div className='container mx-auto px-4 sm:px-6 py-8 sm:py-12'>
-        <div className='grid lg:grid-cols-3 gap-8 lg:gap-14'>
-          <div className='space-y-6 sm:space-y-8'>
-            <div className='space-y-4 sm:space-y-6 mt-20'>
-              <Link 
+    <ProtectedRoute requiredRole='admin'>
+      <>
+        <div className='min-h-screen bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-900 transition-all duration-500'>
+          <div className='container mx-auto px-4 sm:px-6 py-8 sm:py-12'>
+            {/* Header Section */}
+            <div className="mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    Browse through
+                    <br/>
+                    <span className='bg-gradient-to-br from-red-600 to-pink-600 bg-clip-text text-transparent'>&</span>
+                    <br/>
+                    <span className='bg-gradient-to-br from-red-600 to-pink-600 bg-clip-text text-transparent'>Manage Employees</span>
+                  </h1>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Manage all employees, roles, and permissions across the platform
+                  </p>
+                </div>
+                <Link
                   href='/registeremployee'
                   className='inline-flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold shadow-md hover:from-red-700 hover:to-pink-700 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
-                  >
+                >
                   <Plus className='w-5 h-5 mr-2'/>
-                  Register a new Employee
-              </Link> 
-              <h1 className='text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white '>
-                Browse through
-                <span className='block bg-gradient-to-r from-red-600 to-gray-600 bg-clip-text text-transparent'>
-                  &
-                </span>
-                <span className='block bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent'>
-                  Edit Employee
-                </span>
-              </h1>
-              <p className='text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed'>
-                Browse through employees on the platform and make changes
-              </p>
+                  Add Employee
+                </Link>
+              </div>
 
-              <div className='space-y-4 sm:space-y-6'>
-                {features.map((feature, index) => (
-                  <div
-                    key={index}
-                    className='flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-xl dark:bg-gray-800/50 backdrop-blur-sm border border-gray-300/50 dark:border-gray-700/50 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]'
-                  >
-                    <div className='flex-shrink-0 w-10 sm:w-12 h-10 sm:h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center text-white'>
-                      {feature.icon}
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-red-300 dark:border-red-700 hover:scale-[1.02] transition-all duration-300">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+                      <Users className="h-6 w-6 text-red-600 dark:text-red-400" />
                     </div>
-                    <div className='min-w-0 flex-1'>
-                      <h3 className='font-semibold text-gray-900 dark:text-white mb-1 text-sm sm:text-base'>
-                        {feature.title}
-                      </h3>
-                      <p className='text-gray-600 dark:text-gray-300 text-sm'>
-                        {feature.description}
-                      </p>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600 dark:text-white">Total Staff</p>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.total}</p>
                     </div>
                   </div>
-                ))}
+                </div>
+                
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-red-200 dark:border-red-700 hover:scale-[1.02] transition-all duration-300">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+                      <Shield className="h-6 w-6 text-red-600 dark:text-red-400" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600 dark:text-white">Admins</p>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.admins}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-red-200 dark:border-red-700 hover:scale-[1.02] transition-all duration-300">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+                      <User className="h-6 w-6 text-red-600 dark:text-red-400" />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600 dark:text-white">Employees</p>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.employees}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          <div className='lg:col-span-2'>
-            <div className='grid grid:cols-1 md:grid-cols-2 gap-6'>
-              {employees.map((employee) => (
-                <EmployeeCard 
-                  key={employee.userid} 
-                  employee={employee} 
-                  onDelete={handleUserDelete}
-                  onUpdate={handleUserUpdate}
-                />
-              ))}
+
+            {/* Data Table */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:text-white p-4 border-red-300 dark:border-red-700 border-2">
+              <DataTable 
+                columns={employeeColumns} 
+                data={employees}
+                filterColumnId="name"
+                filterPlaceholder="Search employees..."
+                isLoading={isLoadingEmployees}
+                enableRowSelection={true}
+                enableColumnVisibility={false}
+                enableGlobalSearch={true}
+                pageSize={10}
+              />
             </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    {isUpdateOpen && editUserId && (
-      <UpdateUserModal
-        isOpen={isUpdateOpen}
-        onClose={handleCloseUpdate}
-        userid={editUserId}
-        onUpdateSuccess={handleUpdateSuccess}
-      />
-    )}
-  </>
-  </ProtectedRoute>  
+        
+        {isUpdateOpen && editUserId && (
+          <UpdateUserModal
+            isOpen={isUpdateOpen}
+            onClose={handleCloseUpdate}
+            userid={editUserId}
+            onUpdateSuccess={handleUpdateSuccess}
+          />
+        )}
+      </>
+    </ProtectedRoute>  
   );
 };
 

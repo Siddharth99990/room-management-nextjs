@@ -1,8 +1,8 @@
 'use client'
 import React, { useEffect, useState } from "react";
 import { Building2, Users, Calendar, Mail, Lock, User} from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/authStore";
 
 const LoginPage = () => {
   const router=useRouter();  
@@ -13,7 +13,7 @@ const LoginPage = () => {
     password: ''
   });
 
-  const { login, isAuthenticated,isLoading,clearError,error:authError } = useAuth();
+  const { login, isAuthenticated,isLoading,clearError,error:authError } = useAuthStore();
 
   useEffect(() => {
     if (isAuthenticated) {

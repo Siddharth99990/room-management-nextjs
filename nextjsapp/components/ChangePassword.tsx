@@ -1,7 +1,9 @@
 'use client'
 import React, { useEffect, useState } from "react";
 import { Lock, Mail, X, EyeOff, Eye, Check } from 'lucide-react';
-import { useAuth } from "../context/AuthContext";
+import { useAuthStore } from "@/stores/authStore";
+import toast from "react-hot-toast";
+
 
 interface ChangePasswordForm {
     email: string;
@@ -15,7 +17,7 @@ interface ChangePasswordModalProps {
 }
 
 const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClose }) => {
-    const { user, clearError, error: authError, changePassword,hasTemporaryPassword } = useAuth();
+    const { user, clearError, error: authError, changePassword,hasTemporaryPassword } = useAuthStore();
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -99,6 +101,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
             );
 
             if (result.success) {
+                toast.success("Password changed successfully");
                 console.log('Password changed successfully');
                 setSuccess(true);
                 setPasswordForm(prev => ({
@@ -136,7 +139,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient dark:from-gray-800 dark:to-red-800 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 w-full max-w-md mx-auto">
+            <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient dark:from-gray-800 dark:via-gray-800 dark:to-red-800 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 w-full max-w-md mx-auto">
                 <div className="p-6 sm:p-8 border-b border-gray-200/50 dark:border-gray-700/50">
                     <button 
                         onClick={handleClose}
@@ -171,17 +174,6 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
                     </div>
                 )}    
                 </div>
-
-                {success && (
-                        <div className="mb-6 p-4 bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700 rounded-xl">
-                            <div className="flex items-center">
-                                <Check className="w-5 h-5 text-green-600 dark:text-green-300 mr-2" />
-                                <p className="text-green-700 dark:text-green-300 font-medium text-sm">
-                                    Password changed successfully!
-                                </p>
-                            </div>
-                        </div>
-                    )}
 
                     {(error || authError) && (
                         <div className="mb-6 p-4 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-xl">

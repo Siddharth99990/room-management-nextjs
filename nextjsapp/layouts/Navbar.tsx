@@ -2,22 +2,24 @@
 import React, { useEffect, useState } from "react";
 import Link from 'next/link';
 import { useRouter, usePathname } from "next/navigation";
-import { Home, Users, Building2, Sun, Moon, Menu, X, LogOut, Check, Settings, SearchCheck } from 'lucide-react';
+import { Home, Users, Building2, Sun, Moon, Menu, X, LogOut, Check, Settings, SearchCheck, Edit } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
-import { useAuth } from '../context/AuthContext';
 import ChangePasswordModal from "../components/ChangePassword";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useAuthStore } from "@/stores/authStore";
+import { usePasswordModalStore } from "@/stores/modalStore";
 
 interface NavBarProps {
     children: React.ReactNode;
 }
 
 const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
+    const { isChangePasswordOpen, openChangePassword, closeChangePassword } = usePasswordModalStore();
     const pathname = usePathname();
     const router = useRouter();
     const { theme, toggleTheme } = useTheme();
-    const { user, logout, isAuthenticated } = useAuth();
+    const { user, logout, isAuthenticated } = useAuthStore();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
     const hideNavbarPaths = ['/login'];
     const shouldHideNavbar = hideNavbarPaths.includes(pathname);
@@ -41,17 +43,9 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
         closeMobileMenu();
     };
 
-    const handleChangePasswordClick = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsChangePasswordOpen(true);
+    const handleChangePasswordClick = () => {
+        openChangePassword();
     };
-
-    useEffect(() => {
-        if (user && user?.isTemporaryPassword) {
-            setIsChangePasswordOpen(true);
-        }
-    }, [user?.isTemporaryPassword]);
 
     const navLinks = isAuthenticated ? [
         { path: '/home', label: 'Home', icon: Home },
@@ -61,6 +55,40 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
         ...(user?.role === 'admin' ? [
             { path: '/employees', label: 'Employees', icon: Users },] : [])
     ] : [];
+
+    const userMenu = (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <button className="flex items-center justify-center w-9 h-9 bg-red-500 dark:bg-red-900 rounded-full text-white font-semibold text-lg hover:scale-[1.04] transition-transform duration-200">
+                    {user?.name
+                        .split(' ')
+                        .map(n => n[0])
+                        .join('')
+                        .toUpperCase()
+                        .slice(0, 2)}
+                </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+                align="end"
+                sideOffset={8}
+                className="bg-white dark:bg-gray-800 dark:border-2 dark:border-red-700 border-2 border-red-300 rounded-md backdrop-blur-lg shadow-lg w-56 p-2 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95">
+                <DropdownMenuItem
+                    onSelect={handleChangePasswordClick}
+                    className="flex items-center w-full text-left space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer focus:bg-red-50 dark:focus:bg-gray-700 focus:text-red-600 dark:focus:text-red-400 outline-none"
+                >
+                    <Edit className="w-4 h-4" />
+                    <span>Change Password</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                    onSelect={handleLogout}
+                    className="flex items-center w-full text-left space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer focus:bg-red-50 dark:focus:bg-gray-700 focus:text-red-600 dark:focus:text-red-400 outline-none"
+                >
+                    <LogOut className="h-4 w-4" />
+                    <span>Logout</span>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
@@ -92,26 +120,6 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
                                     </Link>
                                 ))}
 
-                                {isAuthenticated && user && (
-                                    <div className="flex items-center space-x-4 border-l border-gray-200 dark:border-gray-700 pl-4">
-                                        <button
-                                            type="button"
-                                            onClick={handleChangePasswordClick}
-                                            className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-all duration-200"
-                                        >
-                                            <Settings className="h-4 w-4" />
-                                            <span>Change Password</span>
-                                        </button>
-                                        <button
-                                            onClick={handleLogout}
-                                            className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-all duration-200"
-                                        >
-                                            <LogOut className="h-4 w-4" />
-                                            <span>Logout</span>
-                                        </button>
-                                    </div>
-                                )}
-
                                 <button
                                     type="button"
                                     onClick={toggleTheme}
@@ -124,22 +132,17 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
                                         <Sun className="h-5 w-5" />
                                     )}
                                 </button>
+
+                                {isAuthenticated && user && (
+                                    <div className="flex items-center space-x-4 border-l border-gray-200 dark:border-gray-700 pl-4">
+                                        {userMenu}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="md:hidden flex items-center space-x-2">
-                                <button
-                                    type="button"
-                                    onClick={toggleTheme}
-                                    className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-300 hover:scale-110"
-                                    aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-                                >
-                                    {theme === 'light' ? (
-                                        <Moon className="h-5 w-5" />
-                                    ) : (
-                                        <Sun className="h-5 w-5" />
-                                    )}
-                                </button>
-
+                                {isAuthenticated && user && userMenu}
+                                
                                 {isAuthenticated && (
                                     <button
                                         type="button"
@@ -175,31 +178,21 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
                                         <span>{label}</span>
                                     </Link>
                                 ))}
-
-                                {user && (
-                                    <>
-                                        <button
-                                            type="button"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setIsChangePasswordOpen(true);
-                                                closeMobileMenu();
-                                            }}
-                                            className="flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 w-full text-left"
-                                        >
-                                            <Settings className="h-5 w-5" />
-                                            <span>Change Password</span>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={handleLogout}
-                                            className="flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 w-full text-left"
-                                        >
-                                            <LogOut className="h-5 w-5" />
-                                            <span>Logout</span>
-                                        </button>
-                                    </>
-                                )}
+                                 <button
+                                    type="button"
+                                    onClick={() => {
+                                        toggleTheme();
+                                        closeMobileMenu();
+                                    }}
+                                    className="flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 w-full text-left"
+                                >
+                                    {theme === 'light' ? (
+                                        <Moon className="h-5 w-5" />
+                                    ) : (
+                                        <Sun className="h-5 w-5" />
+                                    )}
+                                    <span>Switch to {theme === 'light' ? 'Dark' : 'Light'} Mode</span>
+                                </button>
                             </div>
                         </div>
                     )}
@@ -208,7 +201,7 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
 
             <ChangePasswordModal
                 isOpen={isChangePasswordOpen}
-                onClose={() => setIsChangePasswordOpen(false)}
+                onClose={() => closeChangePassword()}
             />
 
             <main className="transition-colors duration-300">
@@ -219,3 +212,4 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
 };
 
 export default NavBarLayout;
+
