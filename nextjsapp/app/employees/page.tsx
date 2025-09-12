@@ -9,18 +9,16 @@ import ProtectedRoute from '@/context/ProtectedRoute';
 import { getEmployeeColumns } from '@/components/columns/EmployeeColumns';
 import { DataTable } from '@/components/DataTable';
 import { useAuthStore } from '@/stores/authStore';
-import { useEmployeeStore } from '@/stores/employeeStore';
 
 const EmployeesPage: React.FC = () => {
   const {user}=useAuthStore();
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [editUserId, setEditUserId] = useState<number | null>(null);
-  const {employees,isLoadingEmployees,errorEmployees,getEmployees}=useEmployeeStore();
 
-  // const { data: employees = [], isLoading, isError, error, refetch } = useQuery({
-  //   queryKey: ['employees'],
-  //   queryFn: userService.getUsers,
-  // });
+  const { data: employees = [], isLoading:isLoadingEmployees, error:errorEmployees} = useQuery({
+    queryKey: ['employees'],
+    queryFn: userService.getUsers,
+  });
 
   const handleUserUpdate = (userid: number) => {
     setEditUserId(userid);
@@ -63,7 +61,7 @@ const EmployeesPage: React.FC = () => {
   if (errorEmployees) {
     return (
       <div className='min-h-screen flex justify-center items-center bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-900'>
-        <p className='text-red-500'>{errorEmployees}</p>
+        <p className='text-red-500'>{(errorEmployees as Error).message}</p>
       </div>
     );
   }

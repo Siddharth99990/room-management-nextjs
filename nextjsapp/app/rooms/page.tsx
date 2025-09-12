@@ -8,18 +8,28 @@ import { DataTable } from "@/components/DataTable";
 import { getRoomColumns } from "@/components/columns/RoomColumns";
 import { useAuthStore } from "@/stores/authStore";
 import { useRoomStore } from "@/stores/roomStore";
-import { type Room } from "@/api/room.service";
+import { roomService, type Room } from "@/api/room.service";
+import { useQueryClient ,useQuery,useMutation} from "@tanstack/react-query";
 
 const RoomsPage: React.FC = () => {
   const { user } = useAuthStore();
-  const { rooms, isLoadingRooms, errorRooms, getRooms, deleteRoom } = useRoomStore();
+  const queryClient=useQueryClient();
+  const {deleteRoom } = useRoomStore();
   
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [editRoomId, setEditRoomId] = useState<number | null>(null);
 
-  useEffect(() => {
-    getRooms();
-  }, [getRooms]);
+  const {data:rooms=[],isLoading:isLoadingRooms,error:roomsError}=useQuery({
+    queryKey:['rooms'],
+    queryFn:()=>roomService.getAllRooms().then(res=>res.rooms)
+  });
+
+  const deleteRoomMutation=useMutation({
+    mutationFn:deleteRoom,
+    onSuccess:()=>{
+      queryClient.invalidateQueries({queryKey:['rooms']});
+    },
+  });
 
   const handleRoomUpdate = (roomid: number) => {
     setEditRoomId(roomid);
@@ -27,6 +37,7 @@ const RoomsPage: React.FC = () => {
   };
 
   const handleUpdateSuccess = () => {
+    queryClient.invalidateQueries({queryKey:['rooms']});
     setTimeout(() => {
       handleCloseUpdate();
     }, 1000);
@@ -44,7 +55,6 @@ const RoomsPage: React.FC = () => {
   // Stats calculations
   const stats = React.useMemo(() => {
     const totalCapacity = rooms.reduce((sum, room) => sum + (room.capacity || 0), 0);
-
     return {
       total: rooms.length,
       totalCapacity,
@@ -53,11 +63,11 @@ const RoomsPage: React.FC = () => {
 
   const roomColumns = getRoomColumns(handleRoomUpdate, handleRoomDelete, user?.role === 'admin');
 
-  if (errorRooms) {
+  if (roomsError) {
     return (
       <div className="min-h-screen flex justify-center items-center">
         <div className="text-center">
-          <p className="text-red-500 text-lg mb-4">{errorRooms}</p>
+          <p className="text-red-500 text-lg mb-4">{(roomsError as Error).message}</p>
           {user?.role === 'admin' && (
             <Link
               href="/registerroom"
