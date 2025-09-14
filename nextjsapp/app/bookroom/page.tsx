@@ -163,10 +163,10 @@ const BookRoomPage: React.FC = () => {
         }
     }, [roomsError]);
 
-    const getTomorrowDate = () => {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        return tomorrow.toISOString().split('T')[0];
+    const getTodayDate = () => {
+        const today = new Date();
+        today.setDate(today.getDate());
+        return today.toISOString().split('T')[0];
     };
 
     const isRoomAvailable = (roomid: number): boolean => {
@@ -351,7 +351,7 @@ const BookRoomPage: React.FC = () => {
                                     type="date"
                                     value={dateFilter}
                                     onChange={(e) => setDateFilter(e.target.value)}
-                                    min={getTomorrowDate()}
+                                    min={getTodayDate()}
                                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                                 />
                             </div>
@@ -555,7 +555,7 @@ const BookRoomPage: React.FC = () => {
                                         <input
                                             type="date"
                                             {...register("date")}
-                                            min={getTomorrowDate()}
+                                            min={getTodayDate()}
                                             className={`w-full px-4 py-2 border ${
                                                 errors.date ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                                             } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white`}
@@ -657,6 +657,40 @@ const BookRoomPage: React.FC = () => {
                                             ))}
                                         </div>
                                     )}
+                                </div>
+
+                                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                    <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">Selected Room Details</h3>
+                                    <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <div className="flex items-center">
+                                            <Building2 className="w-4 h-4 mr-2 text-gray-500" />
+                                            <span className="font-medium">Room:</span>
+                                            <span className="ml-1">{selectedRoom.roomname}</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                                            <span className="font-medium">Location:</span>
+                                            <span className="ml-1">{selectedRoom.roomlocation}</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <Users className="w-4 h-4 mr-2 text-gray-500" />
+                                            <span className="font-medium">Capacity:</span>
+                                            <span className="ml-1">{selectedRoom.capacity} people</span>
+                                        </div>
+                                        <div className="flex items-start">
+                                            <Clock className="w-4 h-4 mr-2 mt-0.5 text-gray-500" />
+                                            <div>
+                                                <span className="font-medium">Equipment:</span>
+                                                <div className="flex flex-wrap gap-1 mt-1">
+                                                    {selectedRoom.equipment.map((eq, index) => (
+                                                        <span key={index} className="bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs px-2 py-1 rounded-full">
+                                                            {eq}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className="flex gap-4 pt-4">

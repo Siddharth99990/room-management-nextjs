@@ -21,7 +21,7 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
     const { user, logout, isAuthenticated } = useAuthStore();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    const hideNavbarPaths = ['/login'];
+    const hideNavbarPaths = ['/login','/forgetpassword'];
     const shouldHideNavbar = hideNavbarPaths.includes(pathname);
 
     const isActive = (path: string) => {

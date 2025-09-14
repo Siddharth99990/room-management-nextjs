@@ -40,12 +40,12 @@ const ViewBookingModal: React.FC = () => {
     if (!isViewBookingOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 bg-transparent shadow-lg">
-            <div className=" backdrop-blur-xl rounded-3xl bg-transparent w-full max-w-lg mx-auto max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 backdrop-blur-sm bg-transparent bg-black/50 z-50 flex items-center justify-center p-4 shadow-lg">
+            <div className=" backdrop-blur-xl rounded-3xl w-full max-w-lg mx-auto max-h-[90vh] overflow-y-auto">
                 <div className="p-6 sm:p-8 relative">
                     <button
                         onClick={closeViewBooking}
-                        className="absolute right-4 top-4 p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-300"
+                        className="absolute right-4 top-4 p-2 rounded-lg text-gray-800 dark:text-white hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300"
                     >
                         <X className="w-5 h-5"/>
                     </button>

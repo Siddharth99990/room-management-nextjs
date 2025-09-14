@@ -126,7 +126,7 @@ export const getBookingColumns = (
           variant="outline"
           size="sm"
           onClick={() => openViewBooking(booking.bookingid)}
-          className="h-8 px-3 text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-900 dark:hover:text-blue-300"
+          className="h-8 px-3 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900 dark:hover:text-red-300"
         >
           <Eye className="h-3 w-3 mr-1" />
           View
@@ -197,7 +197,7 @@ export const getBookingColumns = (
       cell: ({ row }) => (
         <div className="flex items-center">
           <User className="h-4 w-4 mr-2 text-gray-500" />
-          <span>{row.original.createdBy.name}</span>
+          <span className="text-gray-800 dark:text-white">{row.original.createdBy.name}</span>
         </div>
       ),
       sortingFn: "alphanumeric",

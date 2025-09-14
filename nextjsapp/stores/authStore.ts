@@ -11,7 +11,9 @@ interface AuthState{
     login:(email:string,password:string)=>Promise<{success:boolean;message?:string}>;
     logout:()=>Promise<void>;
     checkAuthStatus:()=>Promise<void>;
-    changePassword:(email:string,oldPassword:string,newPassword:string)=>Promise<{success:boolean;message?:string}>
+    changePassword:(email:string,oldPassword:string,newPassword:string)=>Promise<{success:boolean;message?:string}>;
+    forgetPassword: (email: string) => Promise<{success: boolean; message?: string}>;
+    resetPassword: (email: string, otp: string, newPassword: string) => Promise<{success: boolean; message?: string}>;
     clearError:()=>void;
 };
 
@@ -93,6 +95,24 @@ export const useAuthStore=create(persist<AuthState>(((set,get)=>({
                 success:false,
                 message:err.message
             }
+        }
+    },
+
+    forgetPassword: async (email) => {
+        try {
+            const response = await authService.forgetPassword(email);
+            return { success: response.success, message: response.message };
+        } catch (err: any) {
+            return { success: false, message: err.message };
+        }
+    },
+
+    resetPassword: async (email, otp, newPassword) => {
+        try {
+            const response = await authService.resetPassword(email, otp, newPassword);
+            return { success: response.success, message: response.message };
+        } catch (err: any) {
+            return { success: false, message: err.message };
         }
     },
 

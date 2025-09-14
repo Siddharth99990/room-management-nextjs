@@ -42,6 +42,16 @@ export interface ChangePassword{
     newPassword:string
 }
 
+export interface ForgotPasswordResponse {
+    success: boolean;
+    message: string;
+}
+
+export interface ResetPasswordResponse {
+    success: boolean;
+    message: string;
+}
+
 export interface ApiError{
     success:false;
     message:string;
@@ -101,6 +111,26 @@ class AuthService{
             return response.data;
         }catch(err:any){
             console.error("Change password error:",err);
+            throw this.handleApiError(err);
+        }
+    }
+
+    async forgetPassword(email: string): Promise<ForgotPasswordResponse> {
+        try {
+            const response = await api.post<ForgotPasswordResponse>('/auth/v1/forgetpassword', { email });
+            return response.data;
+        } catch (err: any) {
+            console.error("Forgot password service error:", err);
+            throw this.handleApiError(err);
+        }
+    }
+
+    async resetPassword(email: string, otp: string, newPassword: string): Promise<ResetPasswordResponse> {
+        try {
+            const response = await api.post<ResetPasswordResponse>('/auth/v1/resetpassword', { email, otp, newPassword });
+            return response.data;
+        } catch (err: any) {
+            console.error("Reset password service error:", err);
             throw this.handleApiError(err);
         }
     }
