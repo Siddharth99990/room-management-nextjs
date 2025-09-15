@@ -14,6 +14,7 @@ interface AuthState{
     changePassword:(email:string,oldPassword:string,newPassword:string)=>Promise<{success:boolean;message?:string}>;
     forgetPassword: (email: string) => Promise<{success: boolean; message?: string}>;
     resetPassword: (email: string, otp: string, newPassword: string) => Promise<{success: boolean; message?: string}>;
+    deleteOwnAccount:(email:string,password:string)=>Promise<{success:boolean,message:string}>;
     clearError:()=>void;
 };
 
@@ -116,7 +117,22 @@ export const useAuthStore=create(persist<AuthState>(((set,get)=>({
         }
     },
 
+    deleteOwnAccount:async(email,password)=>{
+        try{
+            const response=await authService.deleteOwnAccount(email,password);
+            return{
+                success:response.success,message:response.message
+            };
+        }catch(err:any){
+            return{
+                success:false,
+                message:err.message
+            };
+        }
+    },
+
     clearError:()=>{
         set({error:null})
     }
+    
 })),{name:"Auth"}));

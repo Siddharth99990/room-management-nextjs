@@ -146,6 +146,7 @@ const BookingsPage: React.FC = () => {
                             </div>
                         </div>
 
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:text-white p-4 dark:border-red-700 dark:border-2 border-2 border-red-300">
                         {bookings.length > 0 ? (
                             <DataTable
                                 columns={bookingColumns}
@@ -155,6 +156,7 @@ const BookingsPage: React.FC = () => {
                                 enableColumnVisibility={false}
                                 enableGlobalSearch={true}
                             />
+                            
                         ) : (
                             <div className="flex flex-col items-center justify-center py-12 text-center text-gray-600 dark:text-gray-400">
                                 <p className="text-lg mb-4">There are currently no bookings.</p>
@@ -165,6 +167,7 @@ const BookingsPage: React.FC = () => {
                                 </Link>
                             </div>
                         )}
+                    </div>
                     </div>
                 </div>
                 {isUpdateOpen && editBookingId && (
