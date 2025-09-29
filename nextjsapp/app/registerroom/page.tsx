@@ -1,8 +1,8 @@
 'use client'
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Building2, Cog, MapPin, Monitor, Users } from "lucide-react";
-import { roomService, type Room } from "../../api/room.service";
+import {type Room } from "../../api/room.service";
 import ProtectedRoute from "@/context/ProtectedRoute";
 import { useRoomStore } from "@/stores/roomStore";
 import toast from "react-hot-toast";

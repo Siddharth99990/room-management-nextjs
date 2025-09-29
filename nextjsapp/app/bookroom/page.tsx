@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useRef, useEffect } from "react";
-import { Clock, Users, Building2, Search, Filter, X, Check, ChevronDown, MapPin } from 'lucide-react';
+import { Clock, Users, Building2, Search,X,MapPin } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { roomService, type Room } from "../../api/room.service";
 import { bookingService, type CreateBookingRequest } from "../../api/booking.service";
@@ -51,7 +51,6 @@ const BookRoomPage: React.FC = () => {
         setValue,
         watch,
         reset,
-        trigger
     } = useForm<BookingFormData>({
         resolver: zodResolver(bookingSchema),
         defaultValues: {
@@ -65,7 +64,6 @@ const BookRoomPage: React.FC = () => {
         }
     });
 
-    const formValues = watch();
     const formAttendees = watch("attendees")||[];
 
     const {
@@ -612,6 +610,9 @@ const BookRoomPage: React.FC = () => {
                                         />
                                         {showAttendeeDropdown && (
                                             <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-auto">
+                                                {isLoadingAttendees && (
+                                                    <div className="animate-spin rounded-full border-red-500 border-2"></div>
+                                                )}
                                                 {filteredAttendees.length > 0 ? (
                                                     filteredAttendees.map((attendee) => (
                                                         <div

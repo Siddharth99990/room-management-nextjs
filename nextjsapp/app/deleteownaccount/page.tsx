@@ -1,6 +1,6 @@
 'use client';
-import React, { useState } from "react";
-import { Building2, Calendar, Clock, HelpCircle, ShieldCheck, User, Users,Lock, Check, Mail } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import {User,Lock,Mail } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import toast from "react-hot-toast";
 import ProtectedRoute from "@/context/ProtectedRoute";
@@ -15,7 +15,7 @@ const DeleteOwnAccountPage = () => {
         password:''
     });
 
-    const {deleteOwnAccount,isAuthenticated,isLoading,clearError,error:authError}=useAuthStore();
+    const {deleteOwnAccount,isLoading,clearError,error:authError}=useAuthStore();
 
     const handleInputChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
         setFormData(prev=>({
@@ -28,7 +28,14 @@ const DeleteOwnAccountPage = () => {
         };
     };
 
-    const handleSubmit=async(e:React.FormEvent)=>{
+    useEffect(()=>{
+        if(authError){
+            toast.error(authError);
+            setError(authError);
+        }
+    },[authError]);
+
+        const handleSubmit=async(e:React.FormEvent)=>{
         e.preventDefault();
         setError('');
 
@@ -36,14 +43,14 @@ const DeleteOwnAccountPage = () => {
 
         try{
             console.log("Delete account attempt:",{email:formData.email});
-            const success=await deleteOwnAccount(formData.email,formData.password);
+            const result = await deleteOwnAccount(formData.email,formData.password);
 
-            if(success){
+            if(result.success){
                 console.log("Deleted account successfully");
                 toast.success("Deleted account successfully");
             }else{
-                setError("Invalid email or password");
-                toast.error("Couldnt delete account");
+                setError(result.message); 
+                toast.error("Could not delete account, Invalid credentials"); 
             }
         }catch(err:any){
             console.error("Delete account error:",err);

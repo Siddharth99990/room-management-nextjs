@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Link from 'next/link';
 import { useRouter, usePathname } from "next/navigation";
-import { Home, Users, Building2, Sun, Moon, Menu, X, LogOut, Check, Settings, SearchCheck, Edit } from 'lucide-react';
+import { Home, Users, Building2, Sun, Moon, Menu, X, LogOut, Check, Settings, SearchCheck, Edit, Trash } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import ChangePasswordModal from "../components/ChangePassword";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -85,6 +85,15 @@ const NavBarLayout: React.FC<NavBarProps> = ({ children }) => {
                 >
                     <LogOut className="h-4 w-4" />
                     <span>Logout</span>
+                </DropdownMenuItem>
+               <DropdownMenuItem
+                    asChild // Add this prop
+                    className="flex items-center w-full text-left space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-all duration-200 cursor-pointer focus:bg-red-50 dark:focus:bg-gray-700 focus:text-red-600 dark:focus:text-red-400 outline-none"
+                >
+                    <Link href='/deleteownaccount'>
+                        <Trash className="h-4 w-4"/>
+                        <span>Delete Account</span>
+                    </Link>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

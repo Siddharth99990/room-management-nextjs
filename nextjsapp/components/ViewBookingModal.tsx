@@ -41,7 +41,7 @@ const ViewBookingModal: React.FC = () => {
 
     return (
         <div className="fixed inset-0 backdrop-blur-sm bg-transparent bg-black/50 z-50 flex items-center justify-center p-4 shadow-lg">
-            <div className=" backdrop-blur-xl rounded-3xl w-full max-w-lg mx-auto max-h-[90vh] overflow-y-auto">
+            <div className=" backdrop-blur-xl bg-white shadow-lg dark:bg-gray-800 dark:border-red-900 dark:border-2 rounded-3xl w-full max-w-lg mx-auto max-h-[90vh] overflow-y-auto">
                 <div className="p-6 sm:p-8 relative">
                     <button
                         onClick={closeViewBooking}
@@ -50,6 +50,7 @@ const ViewBookingModal: React.FC = () => {
                         <X className="w-5 h-5"/>
                     </button>
                 </div>
+                <div className="flex items-center justify-center dark:text-white text-xl">Booking Details</div>
                 <div className="p-6 sm:p-8">
                     {isLoading && (
                          <div className="flex items-center justify-center py-8">

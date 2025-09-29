@@ -34,7 +34,7 @@ const HomePage = () => {
             const createdBookingsResponse = await bookingService.getAllBookings({ createdBy: user.userid, limit: 100 });
             const allBookingsResponse = await bookingService.getAllBookings({ limit: 100 });
 
-            let allUserBookings: Booking[] = [];
+            const allUserBookings: Booking[] = [];
 
             if (createdBookingsResponse.success) {
                 allUserBookings.push(...createdBookingsResponse.bookings);
@@ -71,13 +71,6 @@ const HomePage = () => {
             return users.length;
         },
         enabled: user?.role === 'admin'
-    });
-    
-    const cancelBookingMutation = useMutation({
-        mutationFn: ({ bookingid, userid }: { bookingid: number, userid: number }) => cancelBooking(bookingid, userid),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['userBookings', user?.userid] });
-        },
     });
 
     useEffect(() => {
@@ -197,7 +190,7 @@ const HomePage = () => {
 
                     {user?.role === 'admin' && (
                         <div className='grid md:grid-cols-2 gap-6 mb-8'>
-                            <div className='bg-white dark:bg-gray-800 backdrop-blur-xl rounded-2xl shadow-lg border border-red-500 dark:border-red-900 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300'>
+                            <div className='bg-white dark:bg-gray-800 backdrop-blur-xl rounded-2xl shadow-lg border border-red-500 dark:border-red-900 p-6 hover:shadow-xl hover:-translate-y-1  transition-all duration-300'>
                                 <div className='flex items-center justify-between mb-4'>
                                     <div className='flex items-center space-x-3'>
                                         <div className='w-12 h-12 bg-gradient-to-br from-red-600 to-pink-600 rounded-xl flex items-center justify-center'>

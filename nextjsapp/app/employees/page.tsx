@@ -1,8 +1,8 @@
 'use client';
 import React, { useState } from 'react';
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { userService } from '../../api/user.service';
-import { Plus, Users, Shield, UserCheck, Calendar, User } from 'lucide-react';
+import { Plus, Users, Shield,User } from 'lucide-react';
 import UpdateUserModal from '../../components/UpdateEmployee';
 import Link from 'next/link';
 import ProtectedRoute from '@/context/ProtectedRoute';

@@ -1,22 +1,18 @@
 'use client';
-import React, { useEffect, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Calendar, CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
 import UpdateBookingModal from "../../components/UpdateBooking";
 import ProtectedRoute from "@/context/ProtectedRoute";
 import { DataTable } from "@/components/DataTable";
 import { getBookingColumns } from "@/components/columns/BookingColumns";
-import { useAuthStore } from "@/stores/authStore";
-import { useBookingStore } from "@/stores/bookingStore";
 import { bookingService } from "@/api/booking.service";
 import ViewBookingModal from "@/components/ViewBookingModal"; 
 
 
 const BookingsPage: React.FC = () => {
     const queryClient = useQueryClient();
-    const { user } = useAuthStore();
-
     const [isUpdateOpen, setIsUpdateOpen] = useState(false);
     const [editBookingId, setEditBookingId] = useState<number | null>(null);
 
