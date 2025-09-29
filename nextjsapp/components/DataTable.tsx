@@ -28,13 +28,11 @@ import {
   ChevronsRight,
   Search,
   SlidersHorizontal,
-  Download,
   RefreshCw,
 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -61,12 +59,9 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
-  filterColumnId = "name",
   filterPlaceholder = "Search...",
   title,
   description,
-  onRefresh,
-  onExport,
   isLoading = false,
   className = "",
   enableRowSelection = false,
@@ -109,7 +104,6 @@ export function DataTable<TData, TValue>({
     globalFilterFn: "includesString",
   });
 
-  const selectedRowCount = table.getFilteredSelectedRowModel().rows.length;
   const totalRows = table.getFilteredRowModel().rows.length;
 
   return (

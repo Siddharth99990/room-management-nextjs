@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery,useQueryClient } from '@tanstack/react-query';
 import { Users, Building2, Calendar, Plus, MapPin, CalendarX, Search } from 'lucide-react';
 import Link from 'next/link';
 import SmoothCarousel from '../../components/Carousel';
@@ -12,13 +12,11 @@ import { roomService } from '../../api/room.service';
 import { bookingService, type Booking } from '../../api/booking.service';
 import ProtectedRoute from '@/context/ProtectedRoute';
 import { useAuthStore } from '@/stores/authStore';
-import { useBookingStore } from '@/stores/bookingStore';
 import UpdateBookingModal from '@/components/UpdateBooking';
 
 const HomePage = () => {
     const { user } = useAuthStore();
     const queryClient = useQueryClient();
-    const { cancelBooking } = useBookingStore();
     const [currentTime, setCurrentTime] = useState(new Date());
     const [bookingIndex, setBookingIndex] = useState(0);
     const [roomIndex, setRoomIndex] = useState(0);

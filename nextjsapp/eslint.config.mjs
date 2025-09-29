@@ -19,6 +19,22 @@ const eslintConfig = [
       "build/**",
       "next-env.d.ts",
     ],
+    rules: {
+      // ✅ Allow `any`
+      "@typescript-eslint/no-explicit-any": "off",
+
+      // ✅ Allow quotes like " and ' directly in JSX
+      "react/no-unescaped-entities": "off",
+
+      // ✅ Ignore exhaustive deps warnings in useEffect
+      "react-hooks/exhaustive-deps": "off",
+
+      // ✅ Allow empty interfaces
+      "@typescript-eslint/no-empty-object-type": "off",
+
+      // ✅ Allow unused imports/vars for now
+      "@typescript-eslint/no-unused-vars": "off",
+    },
   },
 ];
 

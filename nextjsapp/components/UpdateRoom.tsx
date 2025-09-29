@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { X, Edit, Building2, MapPin, Users, Monitor } from 'lucide-react';
-import { roomService, type Room, type UpdateRoomData } from "../api/room.service";
+import { roomService, type UpdateRoomData } from "../api/room.service";
 import { useRoomStore } from "@/stores/roomStore";
 import toast from "react-hot-toast";
 

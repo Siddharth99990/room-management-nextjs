@@ -3,10 +3,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Booking } from "@/api/booking.service";
 import {
-  MoreHorizontal,
   ArrowUpDown,
   Edit,
-  Trash2,
   Calendar,
   Clock,
   User,
@@ -15,9 +13,6 @@ import {
   Eye // Import the Eye icon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { bookingService } from "@/api/booking.service";
-import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import React from "react";
 import { useAuthStore } from "@/stores/authStore";
