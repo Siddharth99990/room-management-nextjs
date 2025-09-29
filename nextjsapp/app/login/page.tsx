@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Building2, Users, Calendar, Mail, Lock, User} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
+import Link from "next/link";
 
 const LoginPage = () => {
   const router=useRouter();  
@@ -86,7 +87,7 @@ const LoginPage = () => {
       } else {
         setError("Invalid email or password");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Login error:', err);
       setError("An unexpected error occurred. Please try again.");
     } finally {
@@ -229,9 +230,9 @@ const LoginPage = () => {
                 </button>
 
                 <div className="text-center">
-                  <a href='#' className="text-xs sm:text-sm text-red-600 dark:text-red-400 hover:underline mb-10">
+                  <Link href='/forgetpassword' className="text-xs sm:text-sm text-red-600 dark:text-red-400 hover:underline mb-10">
                     Forgot your password?
-                  </a>
+                  </Link>
                 </div>
               </form>
             </div>

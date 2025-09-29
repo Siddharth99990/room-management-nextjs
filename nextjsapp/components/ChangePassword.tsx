@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from "react";
-import { Lock, Mail, X, EyeOff, Eye, Check } from 'lucide-react';
+import { Lock, Mail, X, EyeOff, Eye} from 'lucide-react';
 import { useAuthStore } from "@/stores/authStore";
 import toast from "react-hot-toast";
 
@@ -56,7 +56,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
             },1000);
             return ()=> clearTimeout(timer);
         }
-    },[success,!hasTemporaryPassword])
+    },[success,hasTemporaryPassword])
 
     const validateForm = (): boolean => {
         if (!passwordForm.email.trim()) {
@@ -125,7 +125,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ isOpen, onClo
         if (!isSubmitting) {
             setError('');
             setSuccess(false);
-            setPasswordForm(prev => ({
+            setPasswordForm(() => ({
                 email: user?.email || '',
                 oldPassword: '',
                 newPassword: ''

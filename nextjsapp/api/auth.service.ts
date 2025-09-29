@@ -42,6 +42,21 @@ export interface ChangePassword{
     newPassword:string
 }
 
+export interface ForgotPasswordResponse {
+    success: boolean;
+    message: string;
+}
+
+export interface ResetPasswordResponse {
+    success: boolean;
+    message: string;
+}
+
+export interface DeleteOwnAccountResponse{
+    success:boolean;
+    message:string;
+}
+
 export interface ApiError{
     success:false;
     message:string;
@@ -69,22 +84,7 @@ class AuthService{
         }
     }
 
-    private handleApiError(err:any):Error{
-        if(err.response?.data){
-            const apiError:ApiError=err.response.data;
-            const errorMessage=Array.isArray(apiError.error)
-            ? apiError.error.join(', ')
-            :apiError.error||apiError.message;
-            return new Error(errorMessage);
-        }
-
-        if(err.request){
-            return new Error('Network error- please check the connection');
-        }
-
-        return new Error(err.message||'An unexpected error occurred');
-    }
-
+    
     async checkAuth():Promise<CheckAuthResponse>{
         try{
             const response=await api.get<CheckAuthResponse>('/auth/v1/check');
@@ -103,6 +103,52 @@ class AuthService{
             console.error("Change password error:",err);
             throw this.handleApiError(err);
         }
+    }
+
+    async forgetPassword(email: string): Promise<ForgotPasswordResponse> {
+        try {
+            const response = await api.post<ForgotPasswordResponse>('/auth/v1/forgetpassword', { email });
+            return response.data;
+        } catch (err: any) {
+            console.error("Forgot password service error:", err);
+            throw this.handleApiError(err);
+        }
+    }
+
+    async resetPassword(email: string, otp: string, newPassword: string): Promise<ResetPasswordResponse> {
+        try {
+            const response = await api.post<ResetPasswordResponse>('/auth/v1/resetpassword', { email, otp, newPassword });
+            return response.data;
+        } catch (err: any) {
+            console.error("Reset password service error:", err);
+            throw this.handleApiError(err);
+        }
+    }
+
+    async deleteOwnAccount(email:string,password:string):Promise<DeleteOwnAccountResponse>{
+        try{
+            const response=await api.put<DeleteOwnAccountResponse>('/auth/v1/deleteaccount',{email,password});
+            return response.data;
+        }catch(err:any){
+            console.error("Delete account failed:",err);
+            throw this.handleApiError(err);
+        }
+    }
+
+    private handleApiError(err:any):Error{
+        if(err.response?.data){
+            const apiError:ApiError=err.response.data;
+            const errorMessage=Array.isArray(apiError.error)
+            ? apiError.error.join(', ')
+            :apiError.error||apiError.message;
+            return new Error(errorMessage);
+        }
+
+        if(err.request){
+            return new Error('Network error- please check the connection');
+        }
+
+        return new Error(err.message||'An unexpected error occurred');
     }
 }
 

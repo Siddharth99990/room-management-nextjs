@@ -28,6 +28,7 @@ const RegisterEmployeePage = () => {
         mutationFn: (userData: Omit<User, 'userid'>) => addEmployee(userData),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['employees'] });
+            queryClient.invalidateQueries({ queryKey: ['userCount'] });
             setFormData({ name: '', email: '', password: '', role: '' });
         },
     });

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { X, Check, Edit, Calendar, Clock, Building2,  Users, FileText } from 'lucide-react';
+import { X, Edit, Calendar, Clock, Building2,  Users, FileText } from 'lucide-react';
 import { bookingService, type UpdateBookingRequest } from "../api/booking.service";
 import { type Booking } from '../api/booking.service';
 import { userService } from "../api/user.service";

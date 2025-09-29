@@ -12,6 +12,7 @@ export const useBookingStore=create<BookingState>((set,get)=>({
   addBooking:async(bookingData)=>{
     try{
       await bookingService.bookRoom(bookingData);
+      toast.success("Booked room successfully")
       return true
     }catch(err:any){
       toast.error(`Booking failed: ${err.message}`);

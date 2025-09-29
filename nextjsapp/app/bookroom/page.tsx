@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useRef, useEffect } from "react";
-import { Clock, Users, Building2, Search, Filter, X, Check, ChevronDown, MapPin } from 'lucide-react';
+import { Clock, Users, Building2, Search,X,MapPin } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { roomService, type Room } from "../../api/room.service";
 import { bookingService, type CreateBookingRequest } from "../../api/booking.service";
@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { bookingSchema, type BookingFormData } from '../../validator/bookingvalidator';
 import toast from "react-hot-toast";
 import { useAuthStore } from "@/stores/authStore";
-import { useEmployeeStore } from "@/stores/employeeStore";
+import { useBookingStore } from "@/stores/bookingStore";
 
 interface AttendeeData {
     userid: number;
@@ -27,6 +27,7 @@ interface AttendeeOption {
 const BookRoomPage: React.FC = () => {
     const { user } = useAuthStore();
     const queryClient = useQueryClient();
+    const { addBooking } = useBookingStore();
     
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
@@ -50,7 +51,6 @@ const BookRoomPage: React.FC = () => {
         setValue,
         watch,
         reset,
-        trigger
     } = useForm<BookingFormData>({
         resolver: zodResolver(bookingSchema),
         defaultValues: {
@@ -64,7 +64,6 @@ const BookRoomPage: React.FC = () => {
         }
     });
 
-    const formValues = watch();
     const formAttendees = watch("attendees")||[];
 
     const {
@@ -124,27 +123,15 @@ const BookRoomPage: React.FC = () => {
     });
 
     const bookRoomMutation = useMutation({
-        mutationFn: async (bookingData: CreateBookingRequest) => {
-            return await bookingService.bookRoom(bookingData);
-        },
-        onSuccess: (response) => {
-            if (response.success) {
-                toast.success("Room booked successfully!");
-                
-                // Reset form
-                resetFormAndCloseModal();
-                
-                // Invalidate queries to refresh data
-                queryClient.invalidateQueries({ queryKey: ['bookings'] });
-                queryClient.invalidateQueries({ queryKey: ['userBookings'] });
-                queryClient.invalidateQueries({ queryKey: ['availableRooms'] });
-            } else {
-                toast.error(response.message || "Failed to book room");
-            }
-        },
-        onError: (err: any) => {
-            console.error("Error booking room:", err);
-            toast.error(err.message || "Network error. Please check your connection and try again.");
+        mutationFn: addBooking,
+        onSuccess: () => {
+            // Invalidate queries to refresh data everywhere
+            queryClient.invalidateQueries({ queryKey: ['bookings'] });
+            queryClient.invalidateQueries({ queryKey: ['userBookings', user?.userid] });
+            queryClient.invalidateQueries({ queryKey: ['availableRooms'] });
+            
+            // Reset form
+            resetFormAndCloseModal();
         }
     });
 
@@ -174,10 +161,10 @@ const BookRoomPage: React.FC = () => {
         }
     }, [roomsError]);
 
-    const getTomorrowDate = () => {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        return tomorrow.toISOString().split('T')[0];
+    const getTodayDate = () => {
+        const today = new Date();
+        today.setDate(today.getDate());
+        return today.toISOString().split('T')[0];
     };
 
     const isRoomAvailable = (roomid: number): boolean => {
@@ -362,7 +349,7 @@ const BookRoomPage: React.FC = () => {
                                     type="date"
                                     value={dateFilter}
                                     onChange={(e) => setDateFilter(e.target.value)}
-                                    min={getTomorrowDate()}
+                                    min={getTodayDate()}
                                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                                 />
                             </div>
@@ -566,7 +553,7 @@ const BookRoomPage: React.FC = () => {
                                         <input
                                             type="date"
                                             {...register("date")}
-                                            min={getTomorrowDate()}
+                                            min={getTodayDate()}
                                             className={`w-full px-4 py-2 border ${
                                                 errors.date ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                                             } rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white`}
@@ -623,6 +610,9 @@ const BookRoomPage: React.FC = () => {
                                         />
                                         {showAttendeeDropdown && (
                                             <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-auto">
+                                                {isLoadingAttendees && (
+                                                    <div className="animate-spin rounded-full border-red-500 border-2"></div>
+                                                )}
                                                 {filteredAttendees.length > 0 ? (
                                                     filteredAttendees.map((attendee) => (
                                                         <div
@@ -650,24 +640,17 @@ const BookRoomPage: React.FC = () => {
                                     </div>
 
                                     {formAttendees.length > 0 && (
-                                        <div className="mt-3 space-y-2">
+                                        <div className="mt-4 flex flex-wrap gap-2 p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700/50">
                                             {formAttendees.map((attendee) => (
                                                 <div
                                                     key={attendee.userid}
-                                                    className="flex items-center justify-between bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg"
+                                                    className="flex items-center bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300 px-3 py-1 rounded-full text-sm font-medium"
                                                 >
-                                                    <div>
-                                                        <span className="font-medium text-gray-800 dark:text-gray-200">
-                                                            {attendee.name}
-                                                        </span>
-                                                        <span className="ml-2 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300 px-2 py-1 rounded-full">
-                                                            Invited
-                                                        </span>
-                                                    </div>
+                                                    <span>{attendee.name}</span>
                                                     <button
                                                         type="button"
                                                         onClick={() => removeAttendee(attendee.userid)}
-                                                        className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
+                                                        className="ml-2 text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors"
                                                     >
                                                         <X className="w-4 h-4" />
                                                     </button>
@@ -675,6 +658,40 @@ const BookRoomPage: React.FC = () => {
                                             ))}
                                         </div>
                                     )}
+                                </div>
+
+                                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                    <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">Selected Room Details</h3>
+                                    <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <div className="flex items-center">
+                                            <Building2 className="w-4 h-4 mr-2 text-gray-500" />
+                                            <span className="font-medium">Room:</span>
+                                            <span className="ml-1">{selectedRoom.roomname}</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                                            <span className="font-medium">Location:</span>
+                                            <span className="ml-1">{selectedRoom.roomlocation}</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <Users className="w-4 h-4 mr-2 text-gray-500" />
+                                            <span className="font-medium">Capacity:</span>
+                                            <span className="ml-1">{selectedRoom.capacity} people</span>
+                                        </div>
+                                        <div className="flex items-start">
+                                            <Clock className="w-4 h-4 mr-2 mt-0.5 text-gray-500" />
+                                            <div>
+                                                <span className="font-medium">Equipment:</span>
+                                                <div className="flex flex-wrap gap-1 mt-1">
+                                                    {selectedRoom.equipment.map((eq, index) => (
+                                                        <span key={index} className="bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs px-2 py-1 rounded-full">
+                                                            {eq}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className="flex gap-4 pt-4">

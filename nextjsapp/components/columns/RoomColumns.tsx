@@ -11,7 +11,6 @@ import {
   MapPin,
   Wifi,
   Monitor,
-  Coffee,
   LampDesk,
   Lightbulb,
   RockingChair,

@@ -1,20 +1,18 @@
 'use client';
-import React, { useEffect, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Calendar, CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
 import UpdateBookingModal from "../../components/UpdateBooking";
 import ProtectedRoute from "@/context/ProtectedRoute";
 import { DataTable } from "@/components/DataTable";
 import { getBookingColumns } from "@/components/columns/BookingColumns";
-import { useAuthStore } from "@/stores/authStore";
-import { useBookingStore } from "@/stores/bookingStore";
 import { bookingService } from "@/api/booking.service";
+import ViewBookingModal from "@/components/ViewBookingModal"; 
+
 
 const BookingsPage: React.FC = () => {
     const queryClient = useQueryClient();
-    const { user } = useAuthStore();
-
     const [isUpdateOpen, setIsUpdateOpen] = useState(false);
     const [editBookingId, setEditBookingId] = useState<number | null>(null);
 
@@ -80,6 +78,7 @@ const BookingsPage: React.FC = () => {
     return (
         <ProtectedRoute>
             <>
+                <ViewBookingModal />
                 <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-50 dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-red-900 transition-all duration-500">
                     <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
 
@@ -143,6 +142,7 @@ const BookingsPage: React.FC = () => {
                             </div>
                         </div>
 
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:text-white p-4 dark:border-red-700 dark:border-2 border-2 border-red-300">
                         {bookings.length > 0 ? (
                             <DataTable
                                 columns={bookingColumns}
@@ -152,6 +152,7 @@ const BookingsPage: React.FC = () => {
                                 enableColumnVisibility={false}
                                 enableGlobalSearch={true}
                             />
+                            
                         ) : (
                             <div className="flex flex-col items-center justify-center py-12 text-center text-gray-600 dark:text-gray-400">
                                 <p className="text-lg mb-4">There are currently no bookings.</p>
@@ -162,6 +163,7 @@ const BookingsPage: React.FC = () => {
                                 </Link>
                             </div>
                         )}
+                    </div>
                     </div>
                 </div>
                 {isUpdateOpen && editBookingId && (

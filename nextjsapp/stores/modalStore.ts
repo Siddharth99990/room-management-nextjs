@@ -14,6 +14,13 @@ interface BookingModalState {
   closeModal: () => void;
 }
 
+interface ViewBookingModalState {
+  isViewBookingOpen: boolean;
+  bookingId: number | null;
+  openViewBooking: (bookingId: number) => void;
+  closeViewBooking: () => void;
+}
+
 export const usePasswordModalStore = create<PasswordModalState>((set) => ({
   isChangePasswordOpen: false,
   openChangePassword: () => set({ isChangePasswordOpen: true }),
@@ -25,4 +32,11 @@ export const useBookingModalStore = create<BookingModalState>((set) => ({
   content: null,
   openModal: (content) => set({ isOpen: true, content }),
   closeModal: () => set({ isOpen: false, content: null }),
+}));
+
+export const useViewBookingModalStore = create<ViewBookingModalState>((set) => ({
+  isViewBookingOpen: false,
+  bookingId: null,
+  openViewBooking: (bookingId) => set({ isViewBookingOpen: true, bookingId }),
+  closeViewBooking: () => set({ isViewBookingOpen: false, bookingId: null }),
 }));

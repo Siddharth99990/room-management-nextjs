@@ -8,7 +8,6 @@ import {Lock} from 'lucide-react';
 import { usePasswordModalStore } from "@/stores/modalStore";
 
 
-// The interface remains clean, without any extra props
 interface ProtectedRouteProps {
     children: React.ReactNode;
     requiredRole?: string;

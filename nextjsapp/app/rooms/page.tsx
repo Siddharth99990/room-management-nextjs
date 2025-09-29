@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import { Plus, Building2 } from "lucide-react";
 import Link from "next/link";
 import UpdateRoomModal from '../../components/UpdateRoom';
@@ -8,8 +8,8 @@ import { DataTable } from "@/components/DataTable";
 import { getRoomColumns } from "@/components/columns/RoomColumns";
 import { useAuthStore } from "@/stores/authStore";
 import { useRoomStore } from "@/stores/roomStore";
-import { roomService, type Room } from "@/api/room.service";
-import { useQueryClient ,useQuery,useMutation} from "@tanstack/react-query";
+import { roomService } from "@/api/room.service";
+import { useQueryClient ,useQuery} from "@tanstack/react-query";
 
 const RoomsPage: React.FC = () => {
   const { user } = useAuthStore();
@@ -24,12 +24,12 @@ const RoomsPage: React.FC = () => {
     queryFn:()=>roomService.getAllRooms().then(res=>res.rooms)
   });
 
-  const deleteRoomMutation=useMutation({
-    mutationFn:deleteRoom,
-    onSuccess:()=>{
-      queryClient.invalidateQueries({queryKey:['rooms']});
-    },
-  });
+  // const deleteRoomMutation=useMutation({
+  //   mutationFn:deleteRoom,
+  //   onSuccess:()=>{
+  //     queryClient.invalidateQueries({queryKey:['rooms']});
+  //   },
+  // });
 
   const handleRoomUpdate = (roomid: number) => {
     setEditRoomId(roomid);
