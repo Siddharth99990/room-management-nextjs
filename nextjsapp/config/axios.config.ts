@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api=axios.create({
-    baseURL:'https://room-management-backend-latest.onrender.com/api',
+    baseURL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080/api',
     withCredentials:true,
     timeout:10000,
     headers:{
