@@ -74,7 +74,7 @@ class RoomService {
 
     async getAllRooms(): Promise<RoomsResponse> {
         try {
-            const response = await api.get<RoomsResponse>('/rooms/v1/rooms');
+            const response = await api.get<RoomsResponse>('/rooms/v1/rooms',{withCredentials:true});
             return response.data;
         } catch (err: any) {
             console.error("Get rooms service error:", err);
