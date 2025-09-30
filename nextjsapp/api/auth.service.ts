@@ -66,7 +66,7 @@ export interface ApiError{
 class AuthService{
     async login(credentials:LoginCredentials):Promise<LoginResponse>{
         try{
-            const response=await api.post<LoginResponse>('/auth/v1/login',credentials);
+            const response=await api.post<LoginResponse>('/auth/v1/login',credentials,{withCredentials:true});
             return response.data;
         }catch(err:any){
             console.error("Login service error:",err);
@@ -76,7 +76,7 @@ class AuthService{
 
     async logout():Promise<LogoutResponse>{
         try{
-            const response=await api.post<LogoutResponse>('/auth/v1/logout');
+            const response=await api.post<LogoutResponse>('/auth/v1/logout',{withCredentials:true});
             return response.data;
         }catch(err:any){
             console.error("Logout service error:",err);
@@ -87,7 +87,7 @@ class AuthService{
     
     async checkAuth():Promise<CheckAuthResponse>{
         try{
-            const response=await api.get<CheckAuthResponse>('/auth/v1/check');
+            const response=await api.get<CheckAuthResponse>('/auth/v1/check',{withCredentials:true});
             return response.data;
         }catch(err:any){
             console.error("Auth check service error:",err);
@@ -97,7 +97,7 @@ class AuthService{
 
     async changePassword(credentials:ChangePassword):Promise<LoginResponse>{
         try{
-            const response=await api.put<LoginResponse>('/auth/v1/changepassword',credentials);
+            const response=await api.put<LoginResponse>('/auth/v1/changepassword',credentials,{withCredentials:true});
             return response.data;
         }catch(err:any){
             console.error("Change password error:",err);
@@ -107,7 +107,7 @@ class AuthService{
 
     async forgetPassword(email: string): Promise<ForgotPasswordResponse> {
         try {
-            const response = await api.post<ForgotPasswordResponse>('/auth/v1/forgetpassword', { email });
+            const response = await api.post<ForgotPasswordResponse>('/auth/v1/forgetpassword', { email },{withCredentials:true});
             return response.data;
         } catch (err: any) {
             console.error("Forgot password service error:", err);
@@ -117,7 +117,7 @@ class AuthService{
 
     async resetPassword(email: string, otp: string, newPassword: string): Promise<ResetPasswordResponse> {
         try {
-            const response = await api.post<ResetPasswordResponse>('/auth/v1/resetpassword', { email, otp, newPassword });
+            const response = await api.post<ResetPasswordResponse>('/auth/v1/resetpassword', { email, otp, newPassword },{withCredentials:true});
             return response.data;
         } catch (err: any) {
             console.error("Reset password service error:", err);
@@ -127,7 +127,7 @@ class AuthService{
 
     async deleteOwnAccount(email:string,password:string):Promise<DeleteOwnAccountResponse>{
         try{
-            const response=await api.put<DeleteOwnAccountResponse>('/auth/v1/deleteaccount',{email,password});
+            const response=await api.put<DeleteOwnAccountResponse>('/auth/v1/deleteaccount',{email,password},{withCredentials:true});
             return response.data;
         }catch(err:any){
             console.error("Delete account failed:",err);
